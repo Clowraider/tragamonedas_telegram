@@ -1,0 +1,51 @@
+schema: spec-driven
+
+context: |
+  Project: Greenfield portfolio-grade Telegram Social Casino Mini App.
+  Workspace detection: no application source, package manifest, build config, CI, or VCS metadata found.
+  Existing workspace artifacts: notas and one JPEG reference image; .atl skill registry already existed.
+  Explicit MVP context: slot-machine game; no real-money deposits, wagering, cash-out, tokens, rewards, events, rankings, or payments.
+  Explicit infrastructure context: self-hosted Proxmox with VMs, LXC, and Docker available.
+  User-provided prior research (not workspace-detected): React/TypeScript/Vite, NestJS/Fastify, PostgreSQL, optional Redis, server-authoritative rounds, Docker.
+
+strict_tdd: false
+
+testing:
+  detected: "2026-07-30"
+  runner:
+    command: ""
+    framework: "none detected in project"
+  layers:
+    unit: { available: false, tool: "" }
+    integration: { available: false, tool: "" }
+    e2e: { available: false, tool: "" }
+  coverage:
+    available: false
+    command: ""
+  quality:
+    linter: { available: false, command: "" }
+    type_checker: { available: false, command: "" }
+    formatter: { available: false, command: "" }
+  note: "Node/npm and Python/pytest exist in the host environment, but no project configuration or test suite is present."
+
+rules:
+  proposal:
+    - Record portfolio/social-casino intent and explicit MVP exclusions.
+    - Include rollback plans for risky changes.
+  specs:
+    - Use Given/When/Then scenarios and RFC 2119 keywords.
+    - Do not introduce real-money, wagering, cash-out, token, reward, event, ranking, or payment requirements into the MVP.
+  design:
+    - Separate detected facts from user-provided context and recommendations.
+    - Document architecture decisions with rationale and deployment assumptions.
+  tasks:
+    - Group tasks by phase and keep each task completable in one session.
+  apply:
+    tdd: false
+    test_command: ""
+  verify:
+    test_command: ""
+    build_command: ""
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas.
