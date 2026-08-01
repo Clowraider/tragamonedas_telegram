@@ -7,6 +7,7 @@ Deliver a polished, portfolio-grade Telegram Mini App and an auditable virtual-c
 ## Scope
 
 ### In Scope
+
 - Server-validated Telegram identity plus isolated, visibly marked local-development fallback.
 - Virtual starting balance and one fixed virtual-credit stake.
 - Exactly three reels, one central winning line, server CSPRNG, and versioned payout evaluation.
@@ -15,12 +16,14 @@ Deliver a polished, portfolio-grade Telegram Mini App and an auditable virtual-c
 - Health/readiness, structured logs, metrics, Docker deployment, backups, and layered tests.
 
 ### Out of Scope
+
 - Real money, cash-out, Stars, blockchain/tokens, KYC, or regulated operation.
 - Login rewards, events, rankings, referrals, multiple games, bonus systems, or complex administration.
 
 ## Capabilities
 
 ### New Capabilities
+
 - `player-identity`: Telegram validation, development fallback, and player bootstrap.
 - `virtual-wallet`: Starting balance and atomic credit accounting.
 - `slot-rounds`: Fixed-stake CSPRNG spins, payouts, persistence, idempotency, recovery, and history.
@@ -28,6 +31,7 @@ Deliver a polished, portfolio-grade Telegram Mini App and an auditable virtual-c
 - `service-operations`: Health, observability, tests, deployment, backup, and restore.
 
 ### Modified Capabilities
+
 None.
 
 ## Approach
@@ -36,22 +40,22 @@ Use React/TypeScript/Vite with DOM/CSS animation and a TypeScript modular-monoli
 
 ## Affected Areas
 
-| Area | Impact | Description |
-|---|---|---|
-| `apps/web/` | New | Identity bootstrap and slot experience |
-| `apps/api/` | New | Identity, wallet, game, spin/history APIs |
-| `apps/api/migrations/` | New | Durable models and constraints |
-| `deploy/` | New | Compose, TLS, backup/restore, Proxmox notes |
-| `tests/` | New | Domain, API, UI, concurrency, smoke tests |
+| Area                   | Impact | Description                                 |
+| ---------------------- | ------ | ------------------------------------------- |
+| `apps/web/`            | New    | Identity bootstrap and slot experience      |
+| `apps/api/`            | New    | Identity, wallet, game, spin/history APIs   |
+| `apps/api/migrations/` | New    | Durable models and constraints              |
+| `deploy/`              | New    | Compose, TLS, backup/restore, Proxmox notes |
+| `tests/`               | New    | Domain, API, UI, concurrency, smoke tests   |
 
 ## Risks
 
-| Risk | Likelihood | Mitigation |
-|---|---|---|
-| Development identity reaches production | Medium | Mode gating, labels, tests |
-| Concurrency corrupts balances | Medium | Transactions, locking/versioning, unique keys |
-| Animation diverges | Medium | Animate authoritative results only |
-| Credits imply value | Medium | Persistent no-cash-value messaging |
+| Risk                                    | Likelihood | Mitigation                                    |
+| --------------------------------------- | ---------- | --------------------------------------------- |
+| Development identity reaches production | Medium     | Mode gating, labels, tests                    |
+| Concurrency corrupts balances           | Medium     | Transactions, locking/versioning, unique keys |
+| Animation diverges                      | Medium     | Animate authoritative results only            |
+| Credits imply value                     | Medium     | Persistent no-cash-value messaging            |
 
 ## Rollback Plan
 

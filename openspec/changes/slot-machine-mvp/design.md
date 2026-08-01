@@ -8,14 +8,14 @@ Build one npm-workspaces repository containing a React/TypeScript/Vite Mini App,
 
 ## Architecture Decisions
 
-| Decision | Alternatives / tradeoff | Choice and rationale |
-|---|---|---|
-| Repository | Separate repositories add release coordination | npm workspaces: `apps/web`, `apps/api`, `packages/contracts`; one lockfile and independently built images |
-| API | NestJS adds DI/decorator structure; microservices add distributed failure modes | Standalone Fastify plugins: schema validation, Pino logging, and injection testing provide enough boundaries with less setup |
-| Persistence | Redis or queues add duplicate state; ORM hides critical locking | PostgreSQL plus `pg` and SQL migrations; explicit transactions make wallet invariants reviewable |
-| Game execution | Client RNG is untrusted; stored RNG state is sensitive | Pure payout engine with injected `RandomSource`; production uses `node:crypto.randomInt`, tests use deterministic sequences |
-| Configuration | Mutable admin configuration expands scope | Versioned, immutable code-owned reel/payout config; persist `game_version` and all outcome inputs on every round |
-| Deployment | Kubernetes and multi-VM HA are disproportionate | One Docker-capable Proxmox VM/LXC running Compose; Caddy terminates TLS, DB remains private |
+| Decision       | Alternatives / tradeoff                                                         | Choice and rationale                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Repository     | Separate repositories add release coordination                                  | npm workspaces: `apps/web`, `apps/api`, `packages/contracts`; one lockfile and independently built images                    |
+| API            | NestJS adds DI/decorator structure; microservices add distributed failure modes | Standalone Fastify plugins: schema validation, Pino logging, and injection testing provide enough boundaries with less setup |
+| Persistence    | Redis or queues add duplicate state; ORM hides critical locking                 | PostgreSQL plus `pg` and SQL migrations; explicit transactions make wallet invariants reviewable                             |
+| Game execution | Client RNG is untrusted; stored RNG state is sensitive                          | Pure payout engine with injected `RandomSource`; production uses `node:crypto.randomInt`, tests use deterministic sequences  |
+| Configuration  | Mutable admin configuration expands scope                                       | Versioned, immutable code-owned reel/payout config; persist `game_version` and all outcome inputs on every round             |
+| Deployment     | Kubernetes and multi-VM HA are disproportionate                                 | One Docker-capable Proxmox VM/LXC running Compose; Caddy terminates TLS, DB remains private                                  |
 
 Redis, Kubernetes, microservices, real money, cash-out/payments, and retention/reward/event systems are explicitly excluded.
 
@@ -34,20 +34,20 @@ Inside one transaction, lock the player's wallet `FOR UPDATE`, re-check `(player
 
 ## Planned Files
 
-| Path | Purpose |
-|---|---|
-| `package.json`, `tsconfig.base.json` | Workspaces and shared compiler policy |
-| `packages/contracts/src/index.ts` | Request/response schemas and error codes |
-| `apps/api/src/app.ts`, `server.ts` | Fastify composition and process entry |
-| `apps/api/src/auth/{telegram,development}.ts` | Mutually exclusive identity adapters |
-| `apps/api/src/game/{config,engine,random}.ts` | Immutable rules, payout, RNG port/adapters |
-| `apps/api/src/spins/spin.service.ts` | Transaction and idempotency boundary |
-| `apps/api/src/routes/{me,spins,health,metrics}.ts` | HTTP surface |
-| `apps/api/src/db/{pool,migrate}.ts`, `apps/api/migrations/001_initial.sql` | PostgreSQL access and schema |
-| `apps/web/src/{app,api,telegram}.ts`, `apps/web/src/slot/{SlotMachine,useSpin}.tsx`, `apps/web/src/styles/slot.css` | Bootstrap, state machine, accessible DOM/CSS reels |
-| `deploy/{compose.yaml,Caddyfile,prometheus.yml,.env.example}` | TLS, private networks, services, probes, scrape config |
-| `deploy/scripts/{backup,restore}.sh`, `deploy/PROXMOX.md` | Encrypted/off-host backup guidance and restore drill |
-| `apps/*/test/`, `tests/e2e/spin.spec.ts` | Unit, integration, component, and browser tests |
+| Path                                                                                                                | Purpose                                                |
+| ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `package.json`, `tsconfig.base.json`                                                                                | Workspaces and shared compiler policy                  |
+| `packages/contracts/src/index.ts`                                                                                   | Request/response schemas and error codes               |
+| `apps/api/src/app.ts`, `server.ts`                                                                                  | Fastify composition and process entry                  |
+| `apps/api/src/auth/{telegram,development}.ts`                                                                       | Mutually exclusive identity adapters                   |
+| `apps/api/src/game/{config,engine,random}.ts`                                                                       | Immutable rules, payout, RNG port/adapters             |
+| `apps/api/src/spins/spin.service.ts`                                                                                | Transaction and idempotency boundary                   |
+| `apps/api/src/routes/{me,spins,health,metrics}.ts`                                                                  | HTTP surface                                           |
+| `apps/api/src/db/{pool,migrate}.ts`, `apps/api/migrations/001_initial.sql`                                          | PostgreSQL access and schema                           |
+| `apps/web/src/{app,api,telegram}.ts`, `apps/web/src/slot/{SlotMachine,useSpin}.tsx`, `apps/web/src/styles/slot.css` | Bootstrap, state machine, accessible DOM/CSS reels     |
+| `deploy/{compose.yaml,Caddyfile,prometheus.yml,.env.example}`                                                       | TLS, private networks, services, probes, scrape config |
+| `deploy/scripts/{backup,restore}.sh`, `deploy/PROXMOX.md`                                                           | Encrypted/off-host backup guidance and restore drill   |
+| `apps/*/test/`, `tests/e2e/spin.spec.ts`                                                                            | Unit, integration, component, and browser tests        |
 
 ## Interfaces / Contracts
 
@@ -69,11 +69,11 @@ Frontend states are `booting -> ready -> requesting -> animating -> settled|erro
 
 ## Testing Strategy
 
-| Layer | Coverage |
-|---|---|
-| Unit (Vitest) | Payouts, fixed stake, deterministic RNG seam, auth-date/HMAC cases, UI state reducer |
-| Integration | Fastify `inject` plus disposable PostgreSQL: rollback, insufficient funds, duplicate/mismatched keys, concurrent spins, auth-mode startup guard |
-| Component/E2E | Testing Library animation/recovery/accessibility; Playwright development-auth spin, refresh, balance, and health smoke |
+| Layer         | Coverage                                                                                                                                        |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit (Vitest) | Payouts, fixed stake, deterministic RNG seam, auth-date/HMAC cases, UI state reducer                                                            |
+| Integration   | Fastify `inject` plus disposable PostgreSQL: rollback, insufficient funds, duplicate/mismatched keys, concurrent spins, auth-mode startup guard |
+| Component/E2E | Testing Library animation/recovery/accessibility; Playwright development-auth spin, refresh, balance, and health smoke                          |
 
 ## Operations and Rollout
 

@@ -2,14 +2,14 @@
 
 ## Review Workload Forecast
 
-| Field | Value |
-|---|---|
-| Estimated changed lines | 2,400–3,200 |
-| 400-line budget risk | High |
-| Chained PRs recommended | Yes |
-| Suggested split | Slices 1 → 7 below |
-| Delivery strategy | ask-on-risk |
-| Chain strategy | pending |
+| Field                   | Value              |
+| ----------------------- | ------------------ |
+| Estimated changed lines | 2,400–3,200        |
+| 400-line budget risk    | High               |
+| Chained PRs recommended | Yes                |
+| Suggested split         | Slices 1 → 7 below |
+| Delivery strategy       | ask-on-risk        |
+| Chain strategy          | pending            |
 
 Decision needed before apply: Yes
 Chained PRs recommended: Yes
@@ -20,26 +20,26 @@ No Git operation; autonomous, verified slices.
 
 ### Suggested Work Units
 
-| Unit | Goal | Completion boundary |
-|---|---|---|
-| 1 | Workspace/contracts | Tooling checks pass |
-| 2 | Schema/identity/wallet | PostgreSQL bootstrap tests pass |
-| 3 | Game/settlement | Atomicity tests pass |
-| 4 | API/telemetry | Contract/operations tests pass |
-| 5 | React experience | UI tests pass |
-| 6 | Deployment/recovery | Compose/restore checks pass |
-| 7 | Acceptance/docs | E2E flow passes |
+| Unit | Goal                   | Completion boundary             |
+| ---- | ---------------------- | ------------------------------- |
+| 1    | Workspace/contracts    | Tooling checks pass             |
+| 2    | Schema/identity/wallet | PostgreSQL bootstrap tests pass |
+| 3    | Game/settlement        | Atomicity tests pass            |
+| 4    | API/telemetry          | Contract/operations tests pass  |
+| 5    | React experience       | UI tests pass                   |
+| 6    | Deployment/recovery    | Compose/restore checks pass     |
+| 7    | Acceptance/docs        | E2E flow passes                 |
 
 ## Phase 1: Bootstrap and Contracts (Unit 1)
 
-- [ ] 1.1 Create `package.json`, `tsconfig.base.json`, workspace manifests, ESLint/Prettier, Vitest, Playwright, and `.gitignore`; expose build, typecheck, lint, and test scripts.
-- [ ] 1.2 Define/test schemas, errors, spin representation, UUID key, and bounded history in `packages/contracts/src/index.ts`.
+- [x] 1.1 Create `package.json`, `tsconfig.base.json`, workspace manifests, ESLint/Prettier, Vitest, Playwright, and `.gitignore`; expose build, typecheck, lint, and test scripts.
+- [x] 1.2 Define/test schemas, errors, spin representation, UUID key, and bounded history in `packages/contracts/src/index.ts`.
 
 ## Phase 2: Persistence, Identity, and Wallet (Unit 2)
 
-- [ ] 2.1 Add `apps/api/migrations/001_initial.sql` with `players`, `wallets`, `spin_rounds`, constraints/indexes; add `apps/api/src/db/{pool,migrate}.ts`.
-- [ ] 2.2 Implement `apps/api/src/auth/{telegram,development}.ts` and bootstrap service; test `Valid/Invalid Telegram launch`, development-fallback, `Identity returns`, and starting-balance scenarios.
-- [ ] 2.3 Test production startup rejection, provider isolation, wallet no-reset, and absence of value-bearing operations.
+- [x] 2.1 Add `apps/api/migrations/001_initial.sql` with `players`, `wallets`, `spin_rounds`, constraints/indexes; add `apps/api/src/db/{pool,migrate}.ts`.
+- [x] 2.2 Implement `apps/api/src/auth/{telegram,development}.ts` and bootstrap service; test `Valid/Invalid Telegram launch`, development-fallback, `Identity returns`, and starting-balance scenarios.
+- [x] 2.3 Test production startup rejection, provider isolation, wallet no-reset, and absence of value-bearing operations.
 
 ## Phase 3: Game and Atomic Spins (Unit 3)
 
