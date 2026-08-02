@@ -8,6 +8,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@slot-machine/contracts": "^0.1.0",
     "dotenv": "^16.4.5",
     "pg": "^8.12.0",
     "zod": "^3.23.8"

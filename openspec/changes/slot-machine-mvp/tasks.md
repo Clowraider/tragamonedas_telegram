@@ -43,9 +43,9 @@ No Git operation; autonomous, verified slices.
 
 ## Phase 3: Game and Atomic Spins (Unit 3)
 
-- [ ] 3.1 Implement immutable rules, evaluator, and CSPRNG in `apps/api/src/game/{config,engine,random}.ts`; test `Valid spin`, `Invalid game terms`, and winning/non-winning outcomes.
-- [ ] 3.2 Implement `apps/api/src/spins/spin.service.ts` using `FOR UPDATE`, fingerprints, one transaction, and replay; test funds, rollback, concurrency, and both retry scenarios.
-- [ ] 3.3 Add owned recovery and bounded newest-first history; test `Recover own round` and `List history safely`.
+- [x] 3.1 Implement immutable rules, evaluator, and CSPRNG in `apps/api/src/game/{config,engine,random}.ts`; test `Valid spin`, `Invalid game terms`, and winning/non-winning outcomes.
+- [x] 3.2 Implement `apps/api/src/spins/spin.service.ts` using `FOR UPDATE`, fingerprints, one transaction, and replay; test funds, rollback, concurrency, and both retry scenarios.
+- [x] 3.3 Add owned recovery and bounded newest-first history; test `Recover own round` and `List history safely`.
 
 ## Phase 4: API and Observability (Unit 4)
 

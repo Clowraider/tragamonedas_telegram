@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run build --workspace @slot-machine/contracts && npm run typecheck --workspaces --if-present",
     "lint": "eslint \"apps/**/*.{ts,tsx}\" \"packages/**/*.{ts,tsx}\" \"*.config.{js,ts}\"",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

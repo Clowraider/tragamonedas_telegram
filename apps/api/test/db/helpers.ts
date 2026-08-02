@@ -20,6 +20,7 @@ export function getDatabaseUrl(): string {
 
 export async function withTestSchema<T>(
   fn: (pool: pg.Pool) => Promise<T>,
+  options: { poolMax?: number } = {},
 ): Promise<T> {
   const schema = `test_${randomUUID().replace(/-/g, "_")}`;
   const baseUrl = getDatabaseUrl();
@@ -33,7 +34,7 @@ export async function withTestSchema<T>(
 
   const pool = new pg.Pool({
     connectionString: baseUrl,
-    max: 1,
+    max: options.poolMax ?? 1,
   });
 
   let searchPathReady: Promise<void> | undefined;
