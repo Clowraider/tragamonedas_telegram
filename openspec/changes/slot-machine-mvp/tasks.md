@@ -49,8 +49,8 @@ No Git operation; autonomous, verified slices.
 
 ## Phase 4: API and Observability (Unit 4)
 
-- [ ] 4.1 Compose `apps/api/src/{app,server}.ts` and `routes/{me,spins}.ts` for `/v1/me` and spin create/recover/list; test auth, validation, statuses, request IDs.
-- [ ] 4.2 Add `routes/{health,metrics}.ts`, Pino redaction, required metrics; test health/readiness and privacy-safe observability scenarios.
+- [x] 4.1 Compose `apps/api/src/{app,server}.ts` and `routes/{me,spins}.ts` for `/v1/me` and spin create/recover/list; test auth, validation, statuses, request IDs.
+- [x] 4.2 Add `routes/{health,metrics}.ts`, Pino redaction, required metrics; test health/readiness and privacy-safe observability scenarios.
 
 ## Phase 5: React Experience (Unit 5)
 
