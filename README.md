@@ -159,7 +159,7 @@ To run the Mini App inside Telegram:
 
 ## Deployment and Operations (Docker & Proxmox)
 
-The production stack is containerized with Docker Compose and fronted by Caddy:
+The production stack is fully containerized with Docker Compose and fronted by Caddy with Automatic TLS:
 
 ```
 Internet (TLS / HTTPS)
@@ -175,21 +175,46 @@ Internet (TLS / HTTPS)
 │   Web App    │          │  Fastify API │          │  PostgreSQL  │
 │(Nginx Static)│          │   (Node 22)  │          │ (Persistence)│
 └──────────────┘          └──────┬───────┘          └──────────────┘
-                                 │
-                          ┌──────▼───────┐
-                          │  Prometheus  │
-                          │  (Scraper)   │
-                          └──────────────┘
+                                 ├─────────────────────────┐
+                          ┌──────▼───────┐          ┌──────▼───────┐
+                          │  Prometheus  │          │  Admin Panel │
+                          │  (Scraper)   │          │ (Port :3001) │
+                          └──────────────┘          └──────────────┘
 ```
 
-### 1. Launch Stack
+### 1. Launch Stack with Docker Compose
 
-```bash
-cd deploy
-cp .env.example .env
-# Edit .env with your domain, database credentials, and Telegram Bot Token
-docker compose up -d --build
-```
+1. **Navigate to the deployment directory and prepare the environment file**:
+   ```bash
+   cd deploy
+   cp .env.example .env
+   ```
+
+2. **Configure your `.env` file**:
+   - `DOMAIN`: Tu dominio público apuntando a tu servidor (ej: `slot.midominio.com` o tu IP).
+   - `TELEGRAM_BOT_TOKEN`: Token obtenido de [@BotFather](https://t.me/BotFather).
+   - `APP_SECRET`: Clave aleatoria de 32+ caracteres para firmado criptográfico.
+   - `ADMIN_API_KEY`: Clave secreta para acceder al panel de administración en el puerto 3001.
+   - `POSTGRES_PASSWORD`: Contraseña segura para la base de datos.
+
+3. **Levantar el stack completo (construcción y arranque en segundo plano)**:
+   ```bash
+   docker compose up -d --build
+   ```
+
+   El stack levantará automáticamente:
+   - **PostgreSQL 16** con volumen persistente.
+   - **Contenedor de Migraciones** (aplica esquemas y tablas antes de levantar la API).
+   - **Fastify API**: Servicio modular en Node 22 (puerto 3000 interno y puerto 3001 para el Admin Dashboard).
+   - **Web App**: Bundle estático de React servido por Nginx con cabeceras de seguridad para Telegram.
+   - **Caddy Reverse Proxy**: Gestión automática de certificados SSL/TLS Let's Encrypt (puertos 80 y 443).
+   - **Prometheus**: Recolección interna de telemetría y métricas operativas.
+
+4. **Verificar el estado de los contenedores**:
+   ```bash
+   docker compose ps
+   docker compose logs -f api
+   ```
 
 ### 2. Operational Probes & Admin Dashboard
 

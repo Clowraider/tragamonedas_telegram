@@ -63,9 +63,13 @@ services:
     image: slot-machine-api:latest
     container_name: slot-api
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
     environment:
       NODE_ENV: production
       PORT: 3000
+      ADMIN_PORT: 3001
+      ADMIN_API_KEY: ${ADMIN_API_KEY}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       DATABASE_URL: postgresql://${POSTGRES_USER:-slot}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-slot_machine}
       AUTH_MODE: telegram
@@ -109,6 +113,7 @@ services:
       AUTH_MODE: telegram
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       APP_SECRET: ${APP_SECRET}
+      ADMIN_API_KEY: ${ADMIN_API_KEY}
       DATABASE_URL: postgresql://${POSTGRES_USER:-slot}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-slot_machine}
     depends_on:
       postgres:
