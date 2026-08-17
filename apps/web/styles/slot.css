@@ -2,7 +2,12 @@
 
 :root {
   --slot-bg: #090d16;
-  --slot-cabinet-bg: linear-gradient(180deg, #1e112a 0%, #111827 50%, #0b0f19 100%);
+  --slot-cabinet-bg: linear-gradient(
+    180deg,
+    #1e112a 0%,
+    #111827 50%,
+    #0b0f19 100%
+  );
   --slot-card-bg: #161f30;
   --slot-card-border: #374151;
   --slot-gold: #fbbf24;
@@ -22,11 +27,21 @@
 body {
   margin: 0;
   background-color: var(--slot-bg);
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(236, 72, 153, 0.15), transparent 40%),
+  background-image:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(236, 72, 153, 0.15),
+      transparent 40%
+    ),
     radial-gradient(circle at 50% 100%, rgba(6, 182, 212, 0.1), transparent 40%);
   color: var(--slot-text);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -58,7 +73,7 @@ body {
   padding: 0.5rem 1.5rem;
   border-radius: 9999px;
   border: 2px solid var(--slot-gold);
-  box-shadow: 
+  box-shadow:
     0 0 15px var(--slot-gold-glow),
     inset 0 0 10px rgba(251, 191, 36, 0.4);
 }
@@ -75,7 +90,7 @@ body {
   font-weight: 900;
   letter-spacing: 0.12em;
   color: #fff;
-  text-shadow: 
+  text-shadow:
     0 0 8px #f43f5e,
     0 0 20px #ec4899;
 }
@@ -111,7 +126,7 @@ body {
   border: 4px solid #4b5563;
   border-radius: 24px;
   padding: 1rem;
-  box-shadow: 
+  box-shadow:
     0 15px 35px rgba(0, 0, 0, 0.9),
     0 0 25px rgba(236, 72, 153, 0.2),
     inset 0 2px 4px rgba(255, 255, 255, 0.2);
@@ -124,7 +139,7 @@ body {
 
 .chassis-winner {
   border-color: var(--slot-gold);
-  box-shadow: 
+  box-shadow:
     0 0 40px var(--slot-gold-glow),
     inset 0 0 20px var(--slot-gold-glow);
   animation: chassisFlash 0.6s infinite alternate;
@@ -153,10 +168,16 @@ body {
   background: #4b5563;
 }
 
-.dot-1, .dot-3, .dot-5, .dot-7 {
+.dot-1,
+.dot-3,
+.dot-5,
+.dot-7 {
   animation: lightBlinkA 0.8s infinite alternate;
 }
-.dot-2, .dot-4, .dot-6, .dot-8 {
+.dot-2,
+.dot-4,
+.dot-6,
+.dot-8 {
   animation: lightBlinkB 0.8s infinite alternate;
 }
 
@@ -231,14 +252,30 @@ body {
 
 .payline-laser {
   height: 3px;
-  background: linear-gradient(90deg, transparent, #ef4444 15%, #f43f5e 50%, #ef4444 85%, transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #ef4444 15%,
+    #f43f5e 50%,
+    #ef4444 85%,
+    transparent
+  );
   box-shadow: 0 0 12px #f43f5e;
 }
 
 .payline-active .payline-laser {
   height: 4px;
-  background: linear-gradient(90deg, transparent, #fbbf24 15%, #fff 50%, #fbbf24 85%, transparent);
-  box-shadow: 0 0 20px var(--slot-gold), 0 0 30px #f43f5e;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #fbbf24 15%,
+    #fff 50%,
+    #fbbf24 85%,
+    transparent
+  );
+  box-shadow:
+    0 0 20px var(--slot-gold),
+    0 0 30px #f43f5e;
   animation: laserPulse 0.4s infinite alternate;
 }
 
@@ -267,19 +304,25 @@ body {
 
 .slot-reel {
   height: 120px;
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 45%, #0f172a 55%, #1e293b 100%);
+  background: linear-gradient(
+    180deg,
+    #1e293b 0%,
+    #0f172a 45%,
+    #0f172a 55%,
+    #1e293b 100%
+  );
   border: 2px solid #334155;
   border-radius: 10px;
   position: relative;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     inset 0 12px 15px rgba(0, 0, 0, 0.9),
     inset 0 -12px 15px rgba(0, 0, 0, 0.9);
 }
 
 .reel-win-glow {
   border-color: var(--slot-gold);
-  box-shadow: 
+  box-shadow:
     0 0 15px var(--slot-gold-glow),
     inset 0 0 15px var(--slot-gold-glow);
 }
@@ -290,7 +333,11 @@ body {
   left: 0;
   right: 0;
   height: 40%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 100%
+  );
   pointer-events: none;
   z-index: 10;
 }
@@ -351,7 +398,7 @@ body {
 }
 
 .reel-delay-2 .blur-strip {
-  animation-duration: 0.30s;
+  animation-duration: 0.3s;
 }
 
 @keyframes stripRoll {
@@ -382,7 +429,11 @@ body {
 }
 
 .outcome-banner.win {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.25) 0%, rgba(245, 158, 11, 0.4) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.25) 0%,
+    rgba(245, 158, 11, 0.4) 100%
+  );
   border: 2px solid var(--slot-gold);
   color: #fff;
   box-shadow: 0 0 20px var(--slot-gold-glow);
@@ -432,18 +483,20 @@ body {
   border-radius: 16px;
   padding: 1rem;
   cursor: pointer;
-  box-shadow: 
+  box-shadow:
     0 8px 0 #78350f,
     0 12px 20px rgba(0, 0, 0, 0.8),
     0 0 25px var(--slot-gold-glow);
   position: relative;
   overflow: hidden;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
 }
 
 .spin-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 
+  box-shadow:
     0 10px 0 #78350f,
     0 15px 25px rgba(0, 0, 0, 0.9),
     0 0 35px var(--slot-gold-glow);
@@ -451,7 +504,7 @@ body {
 
 .spin-btn:active:not(:disabled) {
   transform: translateY(6px);
-  box-shadow: 
+  box-shadow:
     0 2px 0 #78350f,
     0 4px 10px rgba(0, 0, 0, 0.9);
 }
@@ -470,7 +523,12 @@ body {
   left: -100%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
   transform: skewX(-20deg);
   animation: btnShine 2.5s infinite;
 }
@@ -480,12 +538,13 @@ body {
   font-weight: 900;
   letter-spacing: 0.1em;
   color: #fff;
-  text-shadow: 
+  text-shadow:
     0 2px 4px rgba(0, 0, 0, 0.8),
     0 0 10px rgba(251, 191, 36, 0.8);
 }
 
-.retry-btn, .refresh-btn {
+.retry-btn,
+.refresh-btn {
   background: #1f2937;
   border: 1px solid #374151;
   color: var(--slot-text-muted);
@@ -497,13 +556,15 @@ body {
   transition: all 0.2s;
 }
 
-.retry-btn:hover, .refresh-btn:hover {
+.retry-btn:hover,
+.refresh-btn:hover {
   background: #374151;
   color: #fff;
 }
 
 /* Paytable Grid */
-.paytable-section, .history-section {
+.paytable-section,
+.history-section {
   background: rgba(17, 24, 39, 0.7);
   border: 1px solid #1f2937;
   border-radius: 16px;
@@ -544,11 +605,21 @@ body {
   font-weight: 800;
 }
 
-.paytable-val.gold { color: #fbbf24; }
-.paytable-val.blue { color: #38bdf8; }
-.paytable-val.amber { color: #f59e0b; }
-.paytable-val.yellow { color: #facc15; }
-.paytable-val.red { color: #f87171; }
+.paytable-val.gold {
+  color: #fbbf24;
+}
+.paytable-val.blue {
+  color: #38bdf8;
+}
+.paytable-val.amber {
+  color: #f59e0b;
+}
+.paytable-val.yellow {
+  color: #facc15;
+}
+.paytable-val.red {
+  color: #f87171;
+}
 
 /* History List */
 .history-list {
@@ -633,44 +704,89 @@ body {
 
 /* Animations Keyframes */
 @keyframes pulseStar {
-  from { opacity: 0.4; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1.1); filter: drop-shadow(0 0 6px #fbbf24); }
+  from {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 6px #fbbf24);
+  }
 }
 
 @keyframes lightBlinkA {
-  0% { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; }
-  100% { background: #374151; box-shadow: none; }
+  0% {
+    background: #fbbf24;
+    box-shadow: 0 0 8px #fbbf24;
+  }
+  100% {
+    background: #374151;
+    box-shadow: none;
+  }
 }
 
 @keyframes lightBlinkB {
-  0% { background: #374151; box-shadow: none; }
-  100% { background: #ec4899; box-shadow: 0 0 8px #ec4899; }
+  0% {
+    background: #374151;
+    box-shadow: none;
+  }
+  100% {
+    background: #ec4899;
+    box-shadow: 0 0 8px #ec4899;
+  }
 }
 
 @keyframes laserPulse {
-  from { opacity: 0.7; }
-  to { opacity: 1; }
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes bannerPop {
-  0% { transform: scale(0.85); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes btnShine {
-  0% { left: -100%; }
-  20% { left: 200%; }
-  100% { left: 200%; }
+  0% {
+    left: -100%;
+  }
+  20% {
+    left: 200%;
+  }
+  100% {
+    left: 200%;
+  }
 }
 
 @keyframes chassisFlash {
-  0% { box-shadow: 0 0 25px var(--slot-gold-glow); }
-  100% { box-shadow: 0 0 50px rgba(251, 191, 36, 0.9), inset 0 0 30px rgba(251, 191, 36, 0.5); }
+  0% {
+    box-shadow: 0 0 25px var(--slot-gold-glow);
+  }
+  100% {
+    box-shadow:
+      0 0 50px rgba(251, 191, 36, 0.9),
+      inset 0 0 30px rgba(251, 191, 36, 0.5);
+  }
 }
 
 /* Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
-  .blur-strip, .neon-star, .light-dot, .spin-btn-shine, .chassis-winner {
+  .blur-strip,
+  .neon-star,
+  .light-dot,
+  .spin-btn-shine,
+  .chassis-winner {
     animation: none !important;
   }
 }

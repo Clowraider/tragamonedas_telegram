@@ -191,11 +191,15 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-### 2. Operational Probes
+### 2. Operational Probes & Admin Dashboard
 
-- **Liveness Probe**: `GET /healthz` (returns HTTP 200 `{ "status": "ok" }`)
-- **Readiness Probe**: `GET /readyz` (verifies PostgreSQL connection; returns HTTP 200 or 503)
-- **Metrics**: `GET /metrics` (scraped by Prometheus over internal network; blocked from public access by Caddy)
+- **Liveness Probe**: `GET /healthz` (returns HTTP 200 `{ "status": "ok" }` on port `:3000`)
+- **Readiness Probe**: `GET /readyz` (verifies PostgreSQL connection on port `:3000`)
+- **Metrics**: `GET /metrics` (scraped by Prometheus over internal network)
+- **Admin Dashboard (Port 3001)**:
+  - Web Console: `http://localhost:3001/` (or your host IP `http://<ip>:3001/`)
+  - Authenticated via `ADMIN_API_KEY` (Header `x-admin-api-key` or login dialog).
+  - Features: Real-time global KPIs (players, circulating credits, RTP, settled rounds), player search with Telegram username inspection, atomic audited credit adjustments (`+N`, `-N`, `=N`), live 50-spin feed, and immutable audit logs.
 
 ### 3. Backup and Restore Procedures
 

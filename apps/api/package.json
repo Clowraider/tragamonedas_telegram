@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && mkdir -p dist/admin/ui && cp -r src/admin/ui/* dist/admin/ui/",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "migrate": "node dist/db/migrate-cli.js"
   },

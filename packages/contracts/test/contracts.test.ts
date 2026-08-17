@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  AdminAdjustBalanceRequestSchema,
+  AdminMetricsSchema,
+  AdminPlayerSchema,
+  AdminSpinFeedItemSchema,
   ApiErrorSchema,
   DEFAULT_HISTORY_LIMIT,
   HistoryQuerySchema,
@@ -120,5 +124,77 @@ describe("bounded history contracts", () => {
         nextCursor: null,
       }).success,
     ).toBe(false);
+  });
+});
+
+describe("admin contracts", () => {
+  it("validates admin metrics schema", () => {
+    const validMetrics = {
+      totalPlayers: 15,
+      circulatingCredits: 15000,
+      totalSpins: 120,
+      observedRtpPercent: 94.5,
+    };
+    expect(AdminMetricsSchema.safeParse(validMetrics).success).toBe(true);
+    expect(
+      AdminMetricsSchema.safeParse({ ...validMetrics, totalPlayers: -1 })
+        .success,
+    ).toBe(false);
+  });
+
+  it("validates admin player schema", () => {
+    const validPlayer = {
+      id: "5a9f3848-154f-4e8c-8eb4-e3c9ea3b5595",
+      authProvider: "telegram",
+      providerSubject: "123456",
+      username: "testuser",
+      firstName: "Test",
+      balance: 1000,
+      createdAt: "2026-07-30T18:00:00.000Z",
+      updatedAt: "2026-07-30T18:00:00.000Z",
+    };
+    expect(AdminPlayerSchema.safeParse(validPlayer).success).toBe(true);
+  });
+
+  it("validates admin balance adjustment schema and rejects empty reason", () => {
+    expect(
+      AdminAdjustBalanceRequestSchema.safeParse({
+        action: "grant",
+        amount: 500,
+        reason: "VIP bonus compensation",
+      }).success,
+    ).toBe(true);
+
+    expect(
+      AdminAdjustBalanceRequestSchema.safeParse({
+        action: "grant",
+        amount: 500,
+        reason: "   ",
+      }).success,
+    ).toBe(false);
+
+    expect(
+      AdminAdjustBalanceRequestSchema.safeParse({
+        action: "invalid_action",
+        amount: 500,
+        reason: "Valid reason",
+      }).success,
+    ).toBe(false);
+  });
+
+  it("validates admin spin feed item schema", () => {
+    const feedItem = {
+      roundId: "5a9f3848-154f-4e8c-8eb4-e3c9ea3b5595",
+      playerId: "5a9f3848-154f-4e8c-8eb4-e3c9ea3b5595",
+      username: "player1",
+      firstName: "Player",
+      stake: 10,
+      payout: 50,
+      symbols: ["cherry", "cherry", "cherry"] as const,
+      balanceBefore: 100,
+      balanceAfter: 140,
+      createdAt: "2026-07-30T18:00:00.000Z",
+    };
+    expect(AdminSpinFeedItemSchema.safeParse(feedItem).success).toBe(true);
   });
 });

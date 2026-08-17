@@ -1,0 +1,1037 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Slot Machine Ops Console</title>
+    <style>
+      :root {
+        --bg-main: #0f172a;
+        --bg-card: #1e293b;
+        --bg-card-hover: #334155;
+        --bg-input: #0b1120;
+        --border-color: #334155;
+        --border-highlight: #64748b;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --accent-primary: #6366f1;
+        --accent-primary-hover: #4f46e5;
+        --accent-success: #10b981;
+        --accent-warning: #f59e0b;
+        --accent-danger: #ef4444;
+        --font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        font-family: var(--font-family);
+        line-height: 1.5;
+        padding: 1.5rem;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1300px;
+        margin: 0 auto;
+      }
+
+      .disclaimer-banner {
+        background: rgba(245, 158, 11, 0.12);
+        border: 1px solid var(--accent-warning);
+        color: #fbbf24;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+      }
+
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .brand h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .badge-online {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--accent-success);
+        border: 1px solid var(--accent-success);
+      }
+
+      .badge-offline {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--accent-danger);
+        border: 1px solid var(--accent-danger);
+      }
+
+      .auth-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      input,
+      select,
+      textarea,
+      button {
+        font-family: inherit;
+        font-size: 0.875rem;
+        border-radius: 6px;
+      }
+
+      input,
+      select,
+      textarea {
+        background: var(--bg-input);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 0.75rem;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--accent-primary);
+      }
+
+      button {
+        background: var(--accent-primary);
+        color: #ffffff;
+        border: none;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        font-weight: 600;
+        transition:
+          background-color 0.2s,
+          opacity 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+      }
+
+      button:hover {
+        background: var(--accent-primary-hover);
+      }
+
+      button.btn-secondary {
+        background: var(--bg-card-hover);
+        color: var(--text-primary);
+      }
+
+      button.btn-secondary:hover {
+        background: var(--border-highlight);
+      }
+
+      button.btn-danger {
+        background: var(--accent-danger);
+      }
+
+      button.btn-danger:hover {
+        background: #dc2626;
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .metric-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .metric-title {
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .metric-value {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      .metric-sub {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+      }
+
+      .nav-tabs {
+        display: flex;
+        gap: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 1.5rem;
+      }
+
+      .tab-btn {
+        background: transparent;
+        color: var(--text-secondary);
+        border-bottom: 2px solid transparent;
+        border-radius: 0;
+        padding: 0.75rem 1.25rem;
+        font-weight: 600;
+      }
+
+      .tab-btn:hover {
+        background: transparent;
+        color: var(--text-primary);
+      }
+
+      .tab-btn.active {
+        background: transparent;
+        color: var(--accent-primary);
+        border-bottom: 2px solid var(--accent-primary);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .panel {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .panel-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .panel-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+      }
+
+      .table-container {
+        overflow-x: auto;
+        width: 100%;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 0.875rem;
+      }
+
+      th {
+        background: rgba(15, 23, 42, 0.6);
+        color: var(--text-secondary);
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      td {
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-primary);
+      }
+
+      tr:hover td {
+        background: rgba(51, 65, 85, 0.3);
+      }
+
+      .code-pill {
+        background: var(--bg-input);
+        border: 1px solid var(--border-color);
+        padding: 0.125rem 0.375rem;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 0.75rem;
+        color: #38bdf8;
+      }
+
+      .symbols-display {
+        font-size: 1.125rem;
+        letter-spacing: 0.25rem;
+      }
+
+      .modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .modal-backdrop.active {
+        display: flex;
+      }
+
+      .modal {
+        background: var(--bg-card);
+        border: 1px solid var(--border-highlight);
+        border-radius: 12px;
+        width: 100%;
+        max-width: 480px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+      }
+
+      .form-group label {
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      .preview-box {
+        background: var(--bg-input);
+        border: 1px dashed var(--border-highlight);
+        padding: 0.75rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .toast-container {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        z-index: 2000;
+      }
+
+      .toast {
+        background: var(--bg-card);
+        border: 1px solid var(--border-highlight);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        font-size: 0.875rem;
+        min-width: 260px;
+        animation: slideIn 0.2s ease-out;
+      }
+
+      .toast.toast-error {
+        border-color: var(--accent-danger);
+        color: #fca5a5;
+      }
+
+      .toast.toast-success {
+        border-color: var(--accent-success);
+        color: #6ee7b7;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="disclaimer-banner">
+        <span>⚠️</span>
+        <span
+          ><strong>COMPLIANCE DISCLAIMER:</strong> All credits, stakes, and
+          payouts displayed in this console are non-monetary virtual test
+          credits for development, demonstration, and amusement only. No real
+          money or monetary value is accepted, held, or paid out.</span
+        >
+      </div>
+
+      <header>
+        <div class="brand">
+          <span style="font-size: 1.75rem">🎰</span>
+          <div>
+            <h1>Slot Machine Ops Console</h1>
+            <div style="font-size: 0.75rem; color: var(--text-muted)">
+              Port 3001 &bull; Administrative Operations
+            </div>
+          </div>
+        </div>
+
+        <div class="auth-controls">
+          <span id="connectionBadge" class="badge badge-offline"
+            >Unauthenticated</span
+          >
+          <input
+            type="password"
+            id="apiKeyInput"
+            placeholder="Admin API Key..."
+            style="width: 220px"
+          />
+          <button id="saveKeyBtn">Connect</button>
+        </div>
+      </header>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-title">Total Players</div>
+          <div class="metric-value" id="kpiPlayers">0</div>
+          <div class="metric-sub">Registered accounts</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Circulating Credits</div>
+          <div class="metric-value" id="kpiCredits">0</div>
+          <div class="metric-sub">Total virtual balance</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Total Settled Spins</div>
+          <div class="metric-value" id="kpiSpins">0</div>
+          <div class="metric-sub">Lifetime rounds</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Observed RTP</div>
+          <div class="metric-value" id="kpiRtp">0.00%</div>
+          <div class="metric-sub">Payout / Turnover %</div>
+        </div>
+      </div>
+
+      <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('playersTab')">
+          Players &amp; Wallets
+        </button>
+        <button class="tab-btn" onclick="switchTab('spinsTab')">
+          Live Spin Feed (50)
+        </button>
+        <button class="tab-btn" onclick="switchTab('auditTab')">
+          Audit Logs
+        </button>
+      </div>
+
+      <!-- PLAYERS TAB -->
+      <div id="playersTab" class="tab-content active">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Registered Players</div>
+            <div style="display: flex; gap: 0.5rem; align-items: center">
+              <input
+                type="text"
+                id="playerSearchInput"
+                placeholder="Search by username, name, ID..."
+                style="width: 280px"
+              />
+              <button onclick="fetchPlayers()">Search</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Player ID</th>
+                  <th>Username</th>
+                  <th>First Name</th>
+                  <th>Provider</th>
+                  <th>Balance (Credits)</th>
+                  <th>Registered</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="playersTableBody">
+                <tr>
+                  <td
+                    colspan="7"
+                    style="text-align: center; color: var(--text-muted)"
+                  >
+                    Loading players...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPINS TAB -->
+      <div id="spinsTab" class="tab-content">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Live Spin Telemetry</div>
+            <div style="display: flex; gap: 0.5rem; align-items: center">
+              <label
+                style="
+                  font-size: 0.8125rem;
+                  color: var(--text-secondary);
+                  display: flex;
+                  align-items: center;
+                  gap: 0.25rem;
+                "
+              >
+                <input type="checkbox" id="autoRefreshSpins" checked />
+                Auto-refresh (3s)
+              </label>
+              <button class="btn-secondary" onclick="fetchSpins()">
+                Refresh
+              </button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Player</th>
+                  <th>Stake</th>
+                  <th>Payout</th>
+                  <th>Symbols</th>
+                  <th>Balance Before &rarr; After</th>
+                </tr>
+              </thead>
+              <tbody id="spinsTableBody">
+                <tr>
+                  <td
+                    colspan="6"
+                    style="text-align: center; color: var(--text-muted)"
+                  >
+                    Loading live spins...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUDIT TAB -->
+      <div id="auditTab" class="tab-content">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Administrative Audit Logs</div>
+            <button class="btn-secondary" onclick="fetchAuditLogs()">
+              Refresh
+            </button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Player ID / User</th>
+                  <th>Action</th>
+                  <th>Amount</th>
+                  <th>Balance Change</th>
+                  <th>Reason</th>
+                  <th>Admin</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody">
+                <tr>
+                  <td
+                    colspan="7"
+                    style="text-align: center; color: var(--text-muted)"
+                  >
+                    Loading audit history...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADJUSTMENT MODAL -->
+    <div id="adjustModal" class="modal-backdrop">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">Adjust Virtual Balance</div>
+          <button
+            class="btn-secondary"
+            style="padding: 0.25rem 0.5rem"
+            onclick="closeAdjustModal()"
+          >
+            &times;
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label>Player ID</label>
+          <input
+            type="text"
+            id="modalPlayerId"
+            readonly
+            style="color: var(--text-secondary)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Current Balance</label>
+          <input
+            type="text"
+            id="modalCurrentBalance"
+            readonly
+            style="color: var(--text-secondary)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Adjustment Action</label>
+          <select id="modalAction" onchange="calculatePreview()">
+            <option value="grant">Grant (+N Credits)</option>
+            <option value="deduct">Deduct (-N Credits)</option>
+            <option value="set">Set Absolute (=N Credits)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Amount (Credits)</label>
+          <input
+            type="number"
+            id="modalAmount"
+            min="0"
+            step="1"
+            value="100"
+            oninput="calculatePreview()"
+          />
+        </div>
+
+        <div class="preview-box">
+          <span>Calculated Balance:</span>
+          <strong id="modalNewBalance">1,100</strong>
+        </div>
+
+        <div class="form-group">
+          <label
+            >Mandatory Audit Reason
+            <span style="color: var(--accent-danger)">*</span></label
+          >
+          <textarea
+            id="modalReason"
+            rows="2"
+            placeholder="e.g. VIP test compensation, QA balance reset..."
+          ></textarea>
+        </div>
+
+        <div
+          style="
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+          "
+        >
+          <button class="btn-secondary" onclick="closeAdjustModal()">
+            Cancel
+          </button>
+          <button id="modalSubmitBtn" onclick="submitAdjustment()">
+            Apply Adjustment
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script>
+      let currentApiKey = localStorage.getItem("admin_api_key") || "";
+      let selectedPlayer = null;
+      let autoRefreshInterval = null;
+
+      const symbolEmojis = {
+        cherry: "🍒",
+        lemon: "🍋",
+        bell: "🔔",
+        bar: "🍫",
+        seven: "7️⃣",
+      };
+
+      function showToast(message, type = "info") {
+        const container = document.getElementById("toastContainer");
+        const toast = document.createElement("div");
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+      }
+
+      function getHeaders() {
+        const headers = { "Content-Type": "application/json" };
+        if (currentApiKey) {
+          headers["x-admin-api-key"] = currentApiKey;
+        }
+        return headers;
+      }
+
+      async function apiRequest(url, options = {}) {
+        options.headers = { ...getHeaders(), ...(options.headers || {}) };
+        const res = await fetch(url, options);
+        if (res.status === 401) {
+          updateAuthBadge(false);
+          throw new Error("Unauthorized: Invalid or missing API key");
+        }
+        if (!res.ok) {
+          const err = await res
+            .json()
+            .catch(() => ({ message: res.statusText }));
+          throw new Error(err.message || "Request failed");
+        }
+        return res.json();
+      }
+
+      function updateAuthBadge(isAuth) {
+        const badge = document.getElementById("connectionBadge");
+        if (isAuth) {
+          badge.className = "badge badge-online";
+          badge.textContent = "Authenticated";
+        } else {
+          badge.className = "badge badge-offline";
+          badge.textContent = "Unauthenticated";
+        }
+      }
+
+      async function checkAuth() {
+        try {
+          await apiRequest("/api/admin/auth/verify");
+          updateAuthBadge(true);
+          refreshAllData();
+        } catch (err) {
+          updateAuthBadge(false);
+        }
+      }
+
+      document
+        .getElementById("saveKeyBtn")
+        .addEventListener("click", async () => {
+          const key = document.getElementById("apiKeyInput").value.trim();
+          if (!key) {
+            showToast("Please enter an admin API key", "error");
+            return;
+          }
+          currentApiKey = key;
+          localStorage.setItem("admin_api_key", key);
+          try {
+            await apiRequest("/api/admin/auth/login", {
+              method: "POST",
+              body: JSON.stringify({ apiKey: key }),
+            });
+            showToast("Connected successfully", "success");
+            updateAuthBadge(true);
+            refreshAllData();
+          } catch (err) {
+            showToast(err.message, "error");
+          }
+        });
+
+      function switchTab(tabId) {
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((tab) => tab.classList.remove("active"));
+
+        const activeBtn = Array.from(
+          document.querySelectorAll(".tab-btn"),
+        ).find((b) => b.getAttribute("onclick").includes(tabId));
+        if (activeBtn) activeBtn.classList.add("active");
+
+        const tabElement = document.getElementById(tabId);
+        if (tabElement) tabElement.classList.add("active");
+
+        if (tabId === "playersTab") fetchPlayers();
+        if (tabId === "spinsTab") fetchSpins();
+        if (tabId === "auditTab") fetchAuditLogs();
+      }
+
+      async function fetchMetrics() {
+        try {
+          const data = await apiRequest("/api/admin/metrics");
+          document.getElementById("kpiPlayers").textContent =
+            data.totalPlayers.toLocaleString();
+          document.getElementById("kpiCredits").textContent =
+            data.circulatingCredits.toLocaleString();
+          document.getElementById("kpiSpins").textContent =
+            data.totalSpins.toLocaleString();
+          document.getElementById("kpiRtp").textContent =
+            `${data.observedRtpPercent.toFixed(2)}%`;
+        } catch (err) {
+          console.error("Failed to fetch metrics:", err);
+        }
+      }
+
+      async function fetchPlayers() {
+        const search = document
+          .getElementById("playerSearchInput")
+          .value.trim();
+        const url = search
+          ? `/api/admin/players?search=${encodeURIComponent(search)}`
+          : "/api/admin/players";
+        try {
+          const data = await apiRequest(url);
+          const tbody = document.getElementById("playersTableBody");
+          tbody.innerHTML = "";
+          if (data.players.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No players found</td></tr>';
+            return;
+          }
+          data.players.forEach((p) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+            <td><span class="code-pill">${p.id.slice(0, 8)}...</span></td>
+            <td>${p.username ? "@" + p.username : '<span style="color:var(--text-muted);">&mdash;</span>'}</td>
+            <td>${p.firstName || '<span style="color:var(--text-muted);">&mdash;</span>'}</td>
+            <td><span class="badge" style="background:rgba(99,102,241,0.2);color:var(--accent-primary);">${p.authProvider}</span></td>
+            <td><strong>${p.balance.toLocaleString()}</strong></td>
+            <td style="color:var(--text-secondary);font-size:0.75rem;">${new Date(p.createdAt).toLocaleDateString()}</td>
+            <td><button class="btn-secondary" style="padding:0.25rem 0.5rem;font-size:0.75rem;" onclick='openAdjustModal(${JSON.stringify(p)})'>Adjust</button></td>
+          `;
+            tbody.appendChild(tr);
+          });
+        } catch (err) {
+          showToast(err.message, "error");
+        }
+      }
+
+      async function fetchSpins() {
+        try {
+          const data = await apiRequest("/api/admin/spins/recent");
+          const tbody = document.getElementById("spinsTableBody");
+          tbody.innerHTML = "";
+          if (data.items.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No spins recorded yet</td></tr>';
+            return;
+          }
+          data.items.forEach((s) => {
+            const symEmojis = s.symbols
+              .map((sym) => symbolEmojis[sym] || sym)
+              .join(" ");
+            const tr = document.createElement("tr");
+            const isWin = s.payout > 0;
+            tr.innerHTML = `
+            <td style="color:var(--text-secondary);font-size:0.75rem;">${new Date(s.createdAt).toLocaleTimeString()}</td>
+            <td>${s.username ? "@" + s.username : s.playerId.slice(0, 8) + "..."}</td>
+            <td>${s.stake}</td>
+            <td style="color:${isWin ? "var(--accent-success)" : "inherit"};font-weight:${isWin ? "700" : "400"};">+${s.payout}</td>
+            <td><span class="symbols-display">${symEmojis}</span></td>
+            <td style="color:var(--text-secondary);">${s.balanceBefore} &rarr; <strong>${s.balanceAfter}</strong></td>
+          `;
+            tbody.appendChild(tr);
+          });
+        } catch (err) {
+          console.error("Failed to fetch spins:", err);
+        }
+      }
+
+      async function fetchAuditLogs() {
+        try {
+          const data = await apiRequest("/api/admin/audit-logs");
+          const tbody = document.getElementById("auditTableBody");
+          tbody.innerHTML = "";
+          if (data.items.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No audit logs yet</td></tr>';
+            return;
+          }
+          data.items.forEach((l) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+            <td style="color:var(--text-secondary);font-size:0.75rem;">${new Date(l.createdAt).toLocaleString()}</td>
+            <td>${l.username ? "@" + l.username : l.playerId.slice(0, 8) + "..."}</td>
+            <td><span class="badge" style="background:rgba(99,102,241,0.2);color:var(--accent-primary);">${l.actionType}</span></td>
+            <td><strong>${l.amount.toLocaleString()}</strong></td>
+            <td style="color:var(--text-secondary);">${l.balanceBefore.toLocaleString()} &rarr; <strong>${l.balanceAfter.toLocaleString()}</strong></td>
+            <td>${l.reason}</td>
+            <td><span class="code-pill">${l.adminIdentifier}</span></td>
+          `;
+            tbody.appendChild(tr);
+          });
+        } catch (err) {
+          console.error("Failed to fetch audit logs:", err);
+        }
+      }
+
+      function openAdjustModal(player) {
+        selectedPlayer = player;
+        document.getElementById("modalPlayerId").value = player.id;
+        document.getElementById("modalCurrentBalance").value =
+          player.balance.toLocaleString();
+        document.getElementById("modalAction").value = "grant";
+        document.getElementById("modalAmount").value = 100;
+        document.getElementById("modalReason").value = "";
+        calculatePreview();
+        document.getElementById("adjustModal").classList.add("active");
+      }
+
+      function closeAdjustModal() {
+        document.getElementById("adjustModal").classList.remove("active");
+        selectedPlayer = null;
+      }
+
+      function calculatePreview() {
+        if (!selectedPlayer) return;
+        const current = selectedPlayer.balance;
+        const action = document.getElementById("modalAction").value;
+        const amount = parseInt(
+          document.getElementById("modalAmount").value || "0",
+          10,
+        );
+        let calculated = current;
+        if (action === "grant") calculated = current + amount;
+        if (action === "deduct") calculated = current - amount;
+        if (action === "set") calculated = amount;
+
+        const previewEl = document.getElementById("modalNewBalance");
+        previewEl.textContent = calculated.toLocaleString();
+        if (calculated < 0) {
+          previewEl.style.color = "var(--accent-danger)";
+        } else {
+          previewEl.style.color = "var(--text-primary)";
+        }
+      }
+
+      async function submitAdjustment() {
+        if (!selectedPlayer) return;
+        const action = document.getElementById("modalAction").value;
+        const amount = parseInt(
+          document.getElementById("modalAmount").value,
+          10,
+        );
+        const reason = document.getElementById("modalReason").value.trim();
+
+        if (!reason) {
+          showToast("Audit reason is mandatory and cannot be empty", "error");
+          return;
+        }
+        if (isNaN(amount) || amount < 0) {
+          showToast("Amount must be a positive integer", "error");
+          return;
+        }
+
+        const submitBtn = document.getElementById("modalSubmitBtn");
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Applying...";
+
+        try {
+          await apiRequest(`/api/admin/players/${selectedPlayer.id}/adjust`, {
+            method: "POST",
+            body: JSON.stringify({ action, amount, reason }),
+          });
+          showToast("Balance adjusted successfully", "success");
+          closeAdjustModal();
+          refreshAllData();
+        } catch (err) {
+          showToast(err.message, "error");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Apply Adjustment";
+        }
+      }
+
+      function refreshAllData() {
+        fetchMetrics();
+        fetchPlayers();
+        fetchSpins();
+        fetchAuditLogs();
+      }
+
+      // Auto-refresh spins interval
+      setInterval(() => {
+        const autoRefresh =
+          document.getElementById("autoRefreshSpins")?.checked;
+        const spinsTabActive = document
+          .getElementById("spinsTab")
+          ?.classList.contains("active");
+        if (autoRefresh && spinsTabActive && currentApiKey) {
+          fetchSpins();
+          fetchMetrics();
+        }
+      }, 3000);
+
+      // Initial setup
+      if (currentApiKey) {
+        document.getElementById("apiKeyInput").value = currentApiKey;
+      }
+      checkAuth();
+    </script>
+  </body>
+</html>

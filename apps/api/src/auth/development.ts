@@ -17,5 +17,7 @@ export function createDevelopmentProvider(
     provider: "development",
     providerSubject: "local-dev",
     displayLabel: "development",
+    username: "dev_player",
+    firstName: "Dev",
   });
 }

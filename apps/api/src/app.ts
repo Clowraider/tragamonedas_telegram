@@ -16,6 +16,10 @@ import { healthRoute } from "./routes/health.js";
 import { metricsRoute } from "./routes/metrics.js";
 
 declare module "fastify" {
+  interface FastifyInstance {
+    pool: pg.Pool;
+    config: AppConfig;
+  }
   interface FastifyRequest {
     playerId: string;
     identity: Identity;

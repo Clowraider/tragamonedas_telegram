@@ -195,7 +195,9 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
                           <span
                             className="symbol-icon"
                             aria-hidden="true"
-                            style={{ filter: `drop-shadow(0 0 10px ${symConfig.color}88)` }}
+                            style={{
+                              filter: `drop-shadow(0 0 10px ${symConfig.color}88)`,
+                            }}
                           >
                             {symConfig.icon}
                           </span>
@@ -223,7 +225,9 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
               >
                 {payout > 0 ? (
                   <div className="win-content">
-                    <span className="win-title">✨ WIN! +{payout} Virtual Credits!</span>
+                    <span className="win-title">
+                      ✨ WIN! +{payout} Virtual Credits!
+                    </span>
                     <span className="win-amount">
                       (Multiplier: {payout / stake}x)
                     </span>
@@ -346,9 +350,13 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
                 </div>
                 <div className="history-details">
                   <span className="history-payout">
-                    {round.payout > 0 ? `+${round.payout} CR` : `-${round.stake} CR`}
+                    {round.payout > 0
+                      ? `+${round.payout} CR`
+                      : `-${round.stake} CR`}
                   </span>
-                  <span className="history-balance">Bal: {round.balanceAfter} CR</span>
+                  <span className="history-balance">
+                    Bal: {round.balanceAfter} CR
+                  </span>
                 </div>
               </li>
             ))}

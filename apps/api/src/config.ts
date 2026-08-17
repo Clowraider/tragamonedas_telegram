@@ -11,6 +11,11 @@ export const AppConfigSchema = z
       .enum(["development", "production", "test"])
       .default("development"),
     port: z.coerce.number().int().positive().default(3000),
+    adminPort: z.coerce.number().int().positive().default(3001),
+    adminApiKey: z
+      .string()
+      .min(8)
+      .default("admin-secret-key-for-local-dev-and-testing"),
     logLevel: z.string().default("info"),
     databaseUrl: z.string().min(1),
     authMode: AuthModeSchema.default("development"),
@@ -48,6 +53,8 @@ export function loadConfig(
   return AppConfigSchema.parse({
     nodeEnv: env.NODE_ENV,
     port: env.PORT,
+    adminPort: env.ADMIN_PORT,
+    adminApiKey: env.ADMIN_API_KEY,
     logLevel: env.LOG_LEVEL,
     databaseUrl: env.DATABASE_URL,
     authMode: env.AUTH_MODE,

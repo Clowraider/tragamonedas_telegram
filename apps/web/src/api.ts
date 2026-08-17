@@ -69,8 +69,7 @@ export class ApiClient {
     response: Response,
     schema: { parse: (data: unknown) => T },
   ): Promise<T> {
-    const requestId =
-      response.headers.get("x-request-id") ?? generateUUID();
+    const requestId = response.headers.get("x-request-id") ?? generateUUID();
 
     let json: unknown;
     try {

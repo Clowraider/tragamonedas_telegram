@@ -4,6 +4,8 @@ import type { Identity } from "./types.js";
 
 export type TelegramValidationResult = {
   telegramUserId: string;
+  username?: string | null;
+  firstName?: string | null;
 };
 
 export function validateTelegramInitData(
@@ -51,12 +53,29 @@ export function validateTelegramInitData(
   if (!userJson) {
     throw new Error("Missing Telegram user");
   }
-  const user = JSON.parse(userJson) as { id?: unknown };
+  const user = JSON.parse(userJson) as {
+    id?: unknown;
+    username?: unknown;
+    first_name?: unknown;
+  };
   if (typeof user.id !== "number" || user.id <= 0) {
     throw new Error("Invalid Telegram user id");
   }
 
-  return { telegramUserId: String(user.id) };
+  const username =
+    typeof user.username === "string" && user.username.length > 0
+      ? user.username
+      : null;
+  const firstName =
+    typeof user.first_name === "string" && user.first_name.length > 0
+      ? user.first_name
+      : null;
+
+  return {
+    telegramUserId: String(user.id),
+    username,
+    firstName,
+  };
 }
 
 export function telegramIdentity(result: TelegramValidationResult): Identity {
@@ -64,5 +83,7 @@ export function telegramIdentity(result: TelegramValidationResult): Identity {
     provider: "telegram",
     providerSubject: result.telegramUserId,
     displayLabel: "telegram",
+    username: result.username ?? null,
+    firstName: result.firstName ?? null,
   };
 }

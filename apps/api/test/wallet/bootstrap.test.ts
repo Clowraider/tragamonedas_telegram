@@ -53,4 +53,42 @@ describe("Virtual wallet bootstrap", () => {
       expect(second.balance).toBe(500);
     });
   });
+
+  it("captures and updates Telegram profile metadata on bootstrap", async () => {
+    await withTestSchema(async (pool) => {
+      const initialIdentity = {
+        provider: "telegram" as const,
+        providerSubject: "12345678",
+        displayLabel: "telegram",
+        username: "initial_user",
+        firstName: "Initial",
+      };
+      const first = await bootstrapPlayer(pool, initialIdentity, 1000);
+      expect(first.username).toBe("initial_user");
+      expect(first.firstName).toBe("Initial");
+
+      const updatedIdentity = {
+        provider: "telegram" as const,
+        providerSubject: "12345678",
+        displayLabel: "telegram",
+        username: "updated_user",
+        firstName: "Updated",
+      };
+      const second = await bootstrapPlayer(pool, updatedIdentity, 1000);
+      expect(second.playerId).toBe(first.playerId);
+      expect(second.username).toBe("updated_user");
+      expect(second.firstName).toBe("Updated");
+
+      const client = await pool.connect();
+      const dbRow = await client.query<{
+        username: string;
+        first_name: string;
+      }>("SELECT username, first_name FROM players WHERE id = $1", [
+        first.playerId,
+      ]);
+      client.release();
+      expect(dbRow.rows[0]?.username).toBe("updated_user");
+      expect(dbRow.rows[0]?.first_name).toBe("Updated");
+    });
+  });
 });
