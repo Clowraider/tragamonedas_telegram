@@ -61,7 +61,9 @@ type RoundRow = {
 
 function requestFingerprint(terms: SpinTerms): string {
   return createHash("sha256")
-    .update(JSON.stringify({ stake: terms.stake, gameVersion: terms.gameVersion }))
+    .update(
+      JSON.stringify({ stake: terms.stake, gameVersion: terms.gameVersion }),
+    )
     .digest("hex");
 }
 
@@ -133,7 +135,10 @@ export async function listRounds(
     );
     const cursorRow = cursorResult.rows[0];
     if (!cursorRow) {
-      throw new SpinError(ROUND_NOT_FOUND, "The requested cursor was not found.");
+      throw new SpinError(
+        ROUND_NOT_FOUND,
+        "The requested cursor was not found.",
+      );
     }
     params.push(cursorRow.created_at, cursor);
     where = `${where} AND (created_at, id) < ($3, $4)`;

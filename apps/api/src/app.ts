@@ -1,12 +1,13 @@
 import Fastify, { type FastifyInstance } from "fastify";
+import cors from "@fastify/cors";
+import fastifyStatic from "@fastify/static";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import pg from "pg";
 
 import { type AppConfig, loadConfig } from "./config.js";
 import { bootstrapPlayer } from "./db/bootstrap.js";
-import {
-  telegramIdentity,
-  validateTelegramInitData,
-} from "./auth/telegram.js";
+import { telegramIdentity, validateTelegramInitData } from "./auth/telegram.js";
 import { createDevelopmentProvider } from "./auth/development.js";
 import type { Identity } from "./auth/types.js";
 import { meRoute } from "./routes/me.js";
@@ -36,7 +37,7 @@ export async function buildApp(
       level: config.logLevel,
       redact: [
         "req.headers.authorization",
-        "req.headers[\"x-telegram-init-data\"]",
+        'req.headers["x-telegram-init-data"]',
         "req.headers.cookie",
       ],
     },
@@ -55,6 +56,24 @@ export async function buildApp(
     new pg.Pool({
       connectionString: config.databaseUrl,
     });
+
+  await app.register(cors, {
+    origin: true,
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "x-telegram-init-data",
+      "x-request-id",
+      "Idempotency-Key",
+    ],
+  });
+
+  const currentDir = path.dirname(fileURLToPath(import.meta.url));
+  const webRoot = path.resolve(currentDir, "../../../apps/web");
+  await app.register(fastifyStatic, {
+    root: webRoot,
+    prefix: "/",
+  });
 
   app.decorate("pool", pool);
   app.decorate("config", config);

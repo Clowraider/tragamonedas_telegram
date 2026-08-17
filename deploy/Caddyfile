@@ -1,0 +1,58 @@
+# ==============================================================================
+# Caddy 2 Reverse Proxy Configuration with Automatic TLS
+# Terminates TLS and isolates backend API, PostgreSQL, and Prometheus.
+# ==============================================================================
+
+{
+    email {$ACME_EMAIL:}
+    auto_https off_if_empty
+    servers {
+        trusted_proxies static private_ranges
+    }
+}
+
+{$DOMAIN:localhost} {
+    # Encode responses with gzip and zstd
+    encode gzip zstd
+
+    # Security headers tailored for Telegram Mini Apps
+    header {
+        # Allow embedding inside Telegram Web and official Telegram mobile/desktop webviews
+        Content-Security-Policy "frame-ancestors 'self' https://web.telegram.org https://*.telegram.org;"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        -Server
+    }
+
+    # Block public access to private Prometheus metrics endpoint
+    @metrics path /metrics /metrics/*
+    respond @metrics "Access Denied: internal telemetry only" 403
+
+    # Route API endpoints and public health probes to Fastify API
+    @api path /v1/* /healthz /readyz /health/*
+    handle @api {
+        reverse_proxy api:3000 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # Route all other web traffic to the static Mini App frontend
+    handle {
+        reverse_proxy web:80 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # Structured JSON access logging
+    log {
+        output stdout
+        format json
+    }
+}

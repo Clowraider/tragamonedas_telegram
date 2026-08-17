@@ -6,9 +6,7 @@ import { buildApp } from "../../src/app.js";
 import { GAME_VERSION } from "../../src/game/config.js";
 import { withTestSchema } from "../db/helpers.js";
 
-function devConfig(
-  databaseUrl: string,
-): Record<string, string | undefined> {
+function devConfig(databaseUrl: string): Record<string, string | undefined> {
   return {
     NODE_ENV: "development",
     AUTH_MODE: "development",

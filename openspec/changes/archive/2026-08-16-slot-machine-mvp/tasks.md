@@ -54,16 +54,16 @@ No Git operation; autonomous, verified slices.
 
 ## Phase 5: React Experience (Unit 5)
 
-- [ ] 5.1 Build `apps/web/src/{app,api,telegram}.ts`; label development mode and virtual credits with no cash value.
-- [ ] 5.2 Build `slot/{SlotMachine,useSpin}.tsx` and `styles/slot.css`: three reels, central line, authoritative states, same-key recovery, CSS animation, reduced motion.
-- [ ] 5.3 Test server resolution, reduced motion, repeated input, lost response, accessibility, and absence of value controls.
+- [x] 5.1 Build `apps/web/src/{app,api,telegram}.ts`; label development mode and virtual credits with no cash value.
+- [x] 5.2 Build `slot/{SlotMachine,useSpin}.tsx` and `styles/slot.css`: three reels, central line, authoritative states, same-key recovery, CSS animation, reduced motion.
+- [x] 5.3 Test server resolution, reduced motion, repeated input, lost response, accessibility, and absence of value controls.
 
 ## Phase 6: Deployment and Recovery (Unit 6)
 
-- [ ] 6.1 Add Dockerfiles and `deploy/{compose.yaml,Caddyfile,prometheus.yml,.env.example}` with TLS, private services, secrets, probes, volumes, migration ordering, Telegram-only auth.
-- [ ] 6.2 Add `deploy/scripts/{backup,restore}.sh` and `deploy/PROXMOX.md`; document prerequisites, off-host backup, isolated restore, rollout, rollback, and restart/restore scenarios.
+- [x] 6.1 Add Dockerfiles and `deploy/{compose.yaml,Caddyfile,prometheus.yml,.env.example}` with TLS, private services, secrets, probes, volumes, migration ordering, Telegram-only auth.
+- [x] 6.2 Add `deploy/scripts/{backup,restore}.sh` and `deploy/PROXMOX.md`; document prerequisites, off-host backup, isolated restore, rollout, rollback, and restart/restore scenarios.
 
 ## Phase 7: Acceptance and Documentation (Unit 7)
 
-- [ ] 7.1 Add `tests/e2e/spin.spec.ts` for development bootstrap, spin, refresh/recovery, balance, history, and health; cover `Release candidate is verified`.
-- [ ] 7.2 Add `README.md` for setup, Telegram, architecture, disclaimer, operations, and exclusions; record verification evidence.
+- [x] 7.1 Add `tests/e2e/spin.spec.ts` for development bootstrap, spin, refresh/recovery, balance, history, and health; cover `Release candidate is verified`.
+- [x] 7.2 Add `README.md` for setup, Telegram, architecture, disclaimer, operations, and exclusions; record verification evidence.

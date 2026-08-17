@@ -4,11 +4,21 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && mkdir -p styles && cp src/styles/slot.css styles/slot.css && node -e \"require('esbuild').buildSync({ entryPoints: ['src/main.tsx'], bundle: true, outfile: 'dist/main.js', format: 'esm', sourcemap: true, define: { 'process.env.NODE_ENV': '\\\"production\\\"' } })\"",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "@slot-machine/contracts": "*",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "jsdom": "^30.0.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   }
 }

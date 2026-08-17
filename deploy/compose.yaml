@@ -1,0 +1,168 @@
+# ==============================================================================
+# Docker Compose specification for Slot Machine MVP
+# Architecture: Single-host Proxmox VM / LXC with Caddy TLS Reverse Proxy
+# All application services & databases reside on a private internal bridge.
+# ==============================================================================
+
+name: slot-machine
+
+services:
+  # --- TLS Termination & Reverse Proxy ---
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: slot-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+      ACME_EMAIL: ${ACME_EMAIL:-}
+    depends_on:
+      web:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks:
+      - internal
+
+  # --- Telegram Mini App Frontend (Static / Nginx) ---
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    image: slot-machine-web:latest
+    container_name: slot-web
+    restart: unless-stopped
+    networks:
+      - internal
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://127.0.0.1:80/healthz",
+        ]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # --- Fastify Modular Monolith API ---
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    image: slot-machine-api:latest
+    container_name: slot-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-slot}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-slot_machine}
+      AUTH_MODE: telegram
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      APP_SECRET: ${APP_SECRET}
+      DEFAULT_BALANCE: ${DEFAULT_BALANCE:-1000}
+      DEFAULT_STAKE: ${DEFAULT_STAKE:-10}
+      GAME_VERSION: ${GAME_VERSION:-classic-1}
+      AUTH_DATE_MAX_AGE_SECONDS: ${AUTH_DATE_MAX_AGE_SECONDS:-86400}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/readyz').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # --- One-off Migration Runner ---
+  migrate:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    image: slot-machine-api:latest
+    container_name: slot-migrate
+    restart: "no"
+    command: ["node", "apps/api/dist/db/migrate-cli.js"]
+    environment:
+      NODE_ENV: production
+      AUTH_MODE: telegram
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      APP_SECRET: ${APP_SECRET}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-slot}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-slot_machine}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal
+
+  # --- PostgreSQL Persistence ---
+  postgres:
+    image: postgres:16-alpine
+    container_name: slot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-slot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-slot_machine}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-slot} -d ${POSTGRES_DB:-slot_machine}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # --- Private Prometheus Telemetry ---
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: slot-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - internal
+
+volumes:
+  postgres_data:
+    name: slot_postgres_data
+  caddy_data:
+    name: slot_caddy_data
+  caddy_config:
+    name: slot_caddy_config
+  prometheus_data:
+    name: slot_prometheus_data
+
+networks:
+  internal:
+    name: slot_internal_net
+    driver: bridge

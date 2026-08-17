@@ -31,10 +31,7 @@ export async function metricsRoute(app: FastifyInstance): Promise<void> {
   (app as unknown as { metrics: MetricsState }).metrics = metrics;
 
   app.addHook("onResponse", async (request, reply) => {
-    if (
-      request.method === "POST" &&
-      request.url.startsWith("/v1/spins")
-    ) {
+    if (request.method === "POST" && request.url.startsWith("/v1/spins")) {
       metrics.spinsTotal++;
       const elapsed = reply.elapsedTime;
       metrics.latencySumMs += elapsed;
@@ -98,8 +95,8 @@ export async function metricsRoute(app: FastifyInstance): Promise<void> {
       `db_ready ${dbReady ? 1 : 0}`,
     ];
 
-    reply.header("content-type", "text/plain; version=0.0.4").send(
-      lines.join("\n") + "\n",
-    );
+    reply
+      .header("content-type", "text/plain; version=0.0.4")
+      .send(lines.join("\n") + "\n");
   });
 }

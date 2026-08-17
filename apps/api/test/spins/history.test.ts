@@ -48,7 +48,11 @@ describe("round recovery and history", () => {
         random: new FixedRandomSource([4, 4, 4]),
         pool,
       });
-      const recovered = await getRound(pool, player.playerId, round.representation.roundId);
+      const recovered = await getRound(
+        pool,
+        player.playerId,
+        round.representation.roundId,
+      );
       expect(recovered).toEqual(round.representation);
     });
   });

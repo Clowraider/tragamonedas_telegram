@@ -54,7 +54,11 @@ describe("spin service settlement", () => {
       });
       expect(result.replayed).toBe(false);
       expect(result.representation.status).toBe("settled");
-      expect(result.representation.symbols).toEqual(["seven", "seven", "seven"]);
+      expect(result.representation.symbols).toEqual([
+        "seven",
+        "seven",
+        "seven",
+      ]);
       expect(result.representation.stake).toBe(10);
       expect(result.representation.payout).toBe(500);
       expect(result.representation.balanceBefore).toBe(1000);
@@ -223,47 +227,50 @@ describe("spin idempotency", () => {
 
 describe("concurrent spins cannot overspend", () => {
   it("settles at most one when balance funds only one spin", async () => {
-    await withTestSchema(async (pool) => {
-      const player = await bootstrap(pool, 15);
-      const keyA = randomUUID();
-      const keyB = randomUUID();
-      const [a, b] = await Promise.allSettled([
-        createSpin({
-          playerId: player.playerId,
-          idempotencyKey: keyA,
-          terms: { stake: 10, gameVersion: GAME_VERSION },
-          configuredStake: 10,
-          random: new FixedRandomSource([0, 2, 4]),
-          pool,
-        }),
-        createSpin({
-          playerId: player.playerId,
-          idempotencyKey: keyB,
-          terms: { stake: 10, gameVersion: GAME_VERSION },
-          configuredStake: 10,
-          random: new FixedRandomSource([0, 2, 4]),
-          pool,
-        }),
-      ]);
-      const settled = [a, b].filter((r) => r.status === "fulfilled");
-      const rejected = [a, b].filter((r) => r.status === "rejected");
-      expect(settled).toHaveLength(1);
-      expect(rejected).toHaveLength(1);
-      if (rejected[0]?.status === "rejected") {
-        expect(rejected[0].reason).toMatchObject({
-          code: INSUFFICIENT_CREDITS,
-        });
-      }
-      const wallet = await pool.query<{ balance: number }>(
-        "SELECT balance FROM wallets WHERE player_id = $1",
-        [player.playerId],
-      );
-      expect(wallet.rows[0]!.balance).toBeGreaterThanOrEqual(0);
-      const rounds = await pool.query(
-        "SELECT count(*)::int AS n FROM spin_rounds WHERE player_id = $1",
-        [player.playerId],
-      );
-      expect(rounds.rows[0]?.n).toBe(1);
-    }, { poolMax: 3 });
+    await withTestSchema(
+      async (pool) => {
+        const player = await bootstrap(pool, 15);
+        const keyA = randomUUID();
+        const keyB = randomUUID();
+        const [a, b] = await Promise.allSettled([
+          createSpin({
+            playerId: player.playerId,
+            idempotencyKey: keyA,
+            terms: { stake: 10, gameVersion: GAME_VERSION },
+            configuredStake: 10,
+            random: new FixedRandomSource([0, 2, 4]),
+            pool,
+          }),
+          createSpin({
+            playerId: player.playerId,
+            idempotencyKey: keyB,
+            terms: { stake: 10, gameVersion: GAME_VERSION },
+            configuredStake: 10,
+            random: new FixedRandomSource([0, 2, 4]),
+            pool,
+          }),
+        ]);
+        const settled = [a, b].filter((r) => r.status === "fulfilled");
+        const rejected = [a, b].filter((r) => r.status === "rejected");
+        expect(settled).toHaveLength(1);
+        expect(rejected).toHaveLength(1);
+        if (rejected[0]?.status === "rejected") {
+          expect(rejected[0].reason).toMatchObject({
+            code: INSUFFICIENT_CREDITS,
+          });
+        }
+        const wallet = await pool.query<{ balance: number }>(
+          "SELECT balance FROM wallets WHERE player_id = $1",
+          [player.playerId],
+        );
+        expect(wallet.rows[0]!.balance).toBeGreaterThanOrEqual(0);
+        const rounds = await pool.query(
+          "SELECT count(*)::int AS n FROM spin_rounds WHERE player_id = $1",
+          [player.playerId],
+        );
+        expect(rounds.rows[0]?.n).toBe(1);
+      },
+      { poolMax: 3 },
+    );
   });
 });

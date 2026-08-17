@@ -37,15 +37,15 @@ describe("game engine", () => {
 
   it("evaluates a winning outcome against the versioned rule", () => {
     expect(evaluatePayout(symbols, GAME_VERSION, 10)).toBe(500);
-    expect(evaluatePayout(["cherry", "cherry", "cherry"], GAME_VERSION, 10)).toBe(
-      30,
-    );
+    expect(
+      evaluatePayout(["cherry", "cherry", "cherry"], GAME_VERSION, 10),
+    ).toBe(30);
   });
 
   it("evaluates a non-winning outcome as zero", () => {
-    expect(
-      evaluatePayout(["cherry", "seven", "bell"], GAME_VERSION, 10),
-    ).toBe(0);
+    expect(evaluatePayout(["cherry", "seven", "bell"], GAME_VERSION, 10)).toBe(
+      0,
+    );
   });
 
   it("rejects an unsupported game version", () => {

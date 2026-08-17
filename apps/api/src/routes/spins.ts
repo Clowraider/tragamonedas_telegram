@@ -113,12 +113,7 @@ export async function spinsRoute(app: FastifyInstance): Promise<void> {
 
     const { limit, cursor } = queryParse.data;
     try {
-      const history = await listRounds(
-        pool,
-        request.playerId,
-        limit,
-        cursor,
-      );
+      const history = await listRounds(pool, request.playerId, limit, cursor);
       return history;
     } catch (error) {
       if (error instanceof SpinError) {
