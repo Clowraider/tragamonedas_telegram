@@ -20,14 +20,17 @@ slot-machine-mvp/
 ├── apps/
 │   ├── api/                 # Fastify TypeScript modular monolith
 │   │   ├── src/
+│   │   │   ├── admin/       # Back-office admin dashboard (Port 3001), auth & audit service
+│   │   │   │   ├── routes/  # /admin/auth, /admin/metrics, /admin/players, /admin/spins, /admin/audit-logs
+│   │   │   │   └── ui/      # Embedded single-page Admin Console UI
 │   │   │   ├── auth/        # Telegram WebApp HMAC & Development auth adapters
 │   │   │   ├── db/          # PostgreSQL pool, migrations, player bootstrap
 │   │   │   ├── game/        # Immutable rules, CSPRNG engine, payout evaluator
 │   │   │   ├── routes/      # /v1/me, /v1/spins, /healthz, /readyz, /metrics
 │   │   │   ├── spins/       # Atomic FOR UPDATE transaction & idempotency service
-│   │   │   ├── app.ts       # Fastify instance builder & plugin composition
+│   │   │   ├── app.ts       # Fastify instance builder & plugin composition (Port 3000)
 │   │   │   ├── config.ts    # Zod-validated environment schema & security guards
-│   │   │   └── server.ts    # Process entrypoint & graceful shutdown lifecycle
+│   │   │   └── server.ts    # Dual-server entrypoint (Game API :3000 & Admin :3001)
 │   │   └── Dockerfile       # Lean multi-stage Node 22 alpine image
 │   └── web/                 # React 19 Telegram WebApp UI
 │       ├── src/
@@ -103,9 +106,11 @@ Example development configuration:
 ```ini
 NODE_ENV=development
 PORT=3000
+ADMIN_PORT=3001
 LOG_LEVEL=info
 DATABASE_URL=postgresql://slot:slot@localhost:5432/slot_machine
 APP_SECRET=dev-secret-change-me-7f8a1b2c3d4e5f6a7b8c9d0e
+ADMIN_API_KEY=admin-dev-secret-key-12345678
 AUTH_MODE=development
 DEFAULT_BALANCE=1000
 DEFAULT_STAKE=10
@@ -211,15 +216,59 @@ Internet (TLS / HTTPS)
    docker compose logs -f api
    ```
 
-### 2. Operational Probes & Admin Dashboard
+### 2. Operational Probes & Health Checks
 
-- **Liveness Probe**: `GET /healthz` (returns HTTP 200 `{ "status": "ok" }` on port `:3000`)
-- **Readiness Probe**: `GET /readyz` (verifies PostgreSQL connection on port `:3000`)
-- **Metrics**: `GET /metrics` (scraped by Prometheus over internal network)
-- **Admin Dashboard (Port 3001)**:
-  - Web Console: `http://localhost:3001/` (or your host IP `http://<ip>:3001/`)
-  - Authenticated via `ADMIN_API_KEY` (Header `x-admin-api-key` or login dialog).
-  - Features: Real-time global KPIs (players, circulating credits, RTP, settled rounds), player search with Telegram username inspection, atomic audited credit adjustments (`+N`, `-N`, `=N`), live 50-spin feed, and immutable audit logs.
+- **Liveness Probe**: `GET /healthz` (retorna HTTP 200 `{"status": "ok"}` en puerto `:3000`).
+- **Readiness Probe**: `GET /readyz` (verifica conectividad activa a PostgreSQL en puerto `:3000`).
+- **Prometheus Metrics**: `GET /metrics` (recolectado internamente por Prometheus sin exponer datos sensibles).
+
+---
+
+## 🛠️ Panel de Control / Back-Office Administrativo (Puerto 3001)
+
+El backend incluye un **Panel de Control administrativo aislado** que corre en su propio puerto (`ADMIN_PORT=3001`), desacoplado del puerto del juego (`3000`), para máxima seguridad y control operativo.
+
+### Acceso y Autenticación
+- **URL**: `http://localhost:3001/` (o `http://<ip-servidor>:3001/`)
+- **Clave de Acceso**: Protegido mediante `ADMIN_API_KEY` (configurada en el `.env`).
+- **Métodos de Auth**: Diálogo web de inicio de sesión o cabecera HTTP `x-admin-api-key`.
+
+### Funcionalidades del Panel de Control
+
+1. 📊 **Métricas y KPIs Globales en Tiempo Real**:
+   - Total de jugadores registrados.
+   - Créditos virtuales totales en circulación en el sistema.
+   - Total de tiradas/rondas jugadas y liquidadas.
+   - Volumen acumulado de apuestas y pagos.
+   - **RTP Real Efectivo**: Cálculo dinámico del retorno real al jugador frente a la ventaja matemática.
+
+2. 👥 **Búsqueda e Inspección de Jugadores**:
+   - Búsqueda por Telegram ID o `@username`.
+   - Visualización del balance actual, fecha de registro y última tirada realizada.
+
+3. 💰 **Ajuste Atómico de Balances con Bloqueo `FOR UPDATE`**:
+   - Modificación segura de créditos en tiempo real con 3 modos de operación:
+     - `+N` (sumar créditos).
+     - `-N` (restar créditos con verificación de saldo no negativo).
+     - `=N` (fijar saldo exacto).
+   - Exige un **motivo obligatorio** para cada ajuste.
+
+4. 🎰 **Monitor de Tiradas en Vivo (Live 50-Spin Feed)**:
+   - Feed de los últimos 50 giros procesados en la plataforma.
+   - Muestra jugador, símbolos resultantes, monto apostado, multiplicador obtenido y pago acreditado.
+
+5. 📜 **Auditoría Inmutable (Audit Logs)**:
+   - Registro permanente de todas las modificaciones de saldo y acciones realizadas por administradores.
+   - Guarda timestamp exacto, ID del jugador, monto anterior, monto posterior, actor y motivo del cambio.
+
+6. 🔌 **API REST Administrativa (Headless)**:
+   - `GET /admin/metrics` — KPIs globales.
+   - `GET /admin/players?search=...` — Lista y búsqueda de jugadores.
+   - `POST /admin/players/:id/balance` — Ajuste atómico de saldo.
+   - `GET /admin/spins` — Últimas tiradas del sistema.
+   - `GET /admin/audit-logs` — Registro de auditoría.
+
+---
 
 ### 3. Backup and Restore Procedures
 
