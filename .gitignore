@@ -1,5 +1,6 @@
 .atl/
 .codegraph/
+.engram/
 
 node_modules/
 dist/
