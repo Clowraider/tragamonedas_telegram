@@ -1,18 +1,13 @@
 # Slot Machine Telegram Mini App (MVP)
 
-> **Portfolio & Demonstration Project**: A production-grade Telegram Web Mini App and Fastify backend demonstrating clean architecture, strict database-level concurrency control (`FOR UPDATE` row locking), cryptographic outcome generation, and resilient idempotent settlement.
+> **Telegram Mini App & Fastify Backend**: Production-grade Telegram Mini App demonstrating clean architecture, strict database-level concurrency control (`FOR UPDATE` row locking), cryptographic outcome generation, and resilient idempotent settlement.
 
 ---
 
-## ⚠️ Important Legal & Entertainment Disclaimer
+## 🎮 Virtual Credits & Real-Money Ready
 
-> **VIRTUAL CREDITS ONLY • NO REAL MONETARY VALUE • ENTERTAINMENT DEMONSTRATION**
-
-This application is strictly an interactive entertainment simulation and technical showcase:
-
-- **No Real Money**: All balances, stakes, payouts, and credits are 100% virtual and have zero cash, monetary, or redeemable value.
-- **No Financial Mechanisms**: There are **no** deposit, withdrawal, cash-out, purchasing, transfer, or token-swapping mechanisms.
-- **No Gambling**: This project is not a gambling platform, does not process payments, and cannot be used for wagering real money or crypto assets.
+- **Modo actual**: Funciona con créditos virtuales (sin dinero real).
+- **Listo para dinero real**: La arquitectura está diseñada con control transaccional estricto (`FOR UPDATE`), balance atómico e idempotencia, lista para adaptarse e integrar pasarelas de pago (Stripe, TON/Crypto, depósitos/retiros) rápidamente.
 
 ---
 
@@ -68,14 +63,14 @@ slot-machine-mvp/
 
 ---
 
-## Architectural Exclusions
+## Architectural Scope (MVP)
 
-To keep the MVP resilient, focused, and reviewable, the following are intentionally excluded from the architecture:
+To keep the MVP resilient, focused, and simple to operate, the core design decisions are:
 
-- ❌ **Real-Money / Payment Systems**: No Stripe, cryptocurrency, or cash-out gateways.
-- ❌ **Redis / Message Queues**: PostgreSQL is the single source of truth; row-level locking eliminates distributed cache invalidation risks.
-- ❌ **Kubernetes / Microservices**: A single Proxmox VM or container running Docker Compose handles full operational requirements.
-- ❌ **Mutable Admin Config**: Game payout rules and reel definitions are code-owned and immutable per `game_version`.
+- 💳 **Pagos externos modulares**: No incluidos por defecto en el core MVP para mantenerlo liviano, pero el motor de billetera y transacciones está desacoplado para conectar pasarelas de pago (Stripe, TON/crypto) fácilmente.
+- ⚡ **Sin Redis ni Message Queues**: PostgreSQL actúa como única fuente de verdad; el bloqueo por fila elimina la complejidad de sincronización distribuida.
+- 📦 **Despliegue unificado**: Un único stack Docker Compose en Proxmox/VM cubre todas las necesidades operativas sin sobreingeniería de Kubernetes.
+- 🔒 **Reglas de juego inmutables**: La configuración de pagos y carretes es propiedad del código y versionada por `game_version`.
 
 ---
 
