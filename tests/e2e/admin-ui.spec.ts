@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import pg from "pg";
 
 import { buildAdminApp } from "../../apps/api/src/admin/app.js";
-import { loadConfig } from "../../apps/api/src/config.js";
+import { loadConfig, resolveDatabaseUrl } from "../../apps/api/src/config.js";
 import { bootstrapPlayer } from "../../apps/api/src/db/bootstrap.js";
 import { runMigrations } from "../../apps/api/src/db/migrate.js";
 
@@ -18,7 +18,7 @@ const rootDir = path.resolve(__dirname, "../..");
 loadDotenv({ path: path.resolve(rootDir, ".env") });
 
 const databaseUrl =
-  process.env.DATABASE_URL ??
+  resolveDatabaseUrl(process.env) ??
   "postgresql://slot:slot@localhost:5432/slot_machine";
 
 const ADMIN_TEST_PORT = 4174;

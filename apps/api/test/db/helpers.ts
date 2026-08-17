@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import pg from "pg";
 
 import { runMigrations } from "../../src/db/migrate.js";
+import { resolveDatabaseUrl } from "../../src/config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,7 +14,7 @@ config({ path: path.resolve(__dirname, "../../../../.env") });
 
 export function getDatabaseUrl(): string {
   return (
-    process.env.DATABASE_URL ??
+    resolveDatabaseUrl(process.env) ??
     "postgresql://slot:slot@localhost:5432/slot_machine"
   );
 }

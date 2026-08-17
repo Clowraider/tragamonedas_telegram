@@ -1,7 +1,20 @@
 import { config } from "dotenv";
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import { z } from "zod";
 
-config({ path: "../../.env" });
+// Load .env looking in common locations (current working directory, monorepo root, or apps/api parent)
+const candidatePaths = [
+  resolve(process.cwd(), ".env"),
+  resolve(process.cwd(), "../../.env"),
+  resolve(process.cwd(), "../.env"),
+];
+for (const envPath of candidatePaths) {
+  if (existsSync(envPath)) {
+    config({ path: envPath });
+    break;
+  }
+}
 
 const AuthModeSchema = z.enum(["telegram", "development"]);
 
@@ -47,6 +60,30 @@ export const AppConfigSchema = z
 
 export type AppConfig = z.infer<typeof AppConfigSchema>;
 
+export function resolveDatabaseUrl(
+  env: Record<string, string | undefined>,
+): string | undefined {
+  if (env.DATABASE_URL && env.DATABASE_URL.trim().length > 0) {
+    return env.DATABASE_URL.trim();
+  }
+
+  const user = env.DB_USER ?? env.POSTGRES_USER;
+  const password = env.DB_PASSWORD ?? env.POSTGRES_PASSWORD;
+  const host = env.DB_HOST ?? env.POSTGRES_HOST ?? "localhost";
+  const port = env.DB_PORT ?? env.POSTGRES_PORT ?? "5432";
+  const db = env.DB_NAME ?? env.POSTGRES_DB;
+
+  if (user && db) {
+    const authPart =
+      password !== undefined && password.length > 0
+        ? `${encodeURIComponent(user)}:${encodeURIComponent(password)}@`
+        : `${encodeURIComponent(user)}@`;
+    return `postgresql://${authPart}${host}:${port}/${db}`;
+  }
+
+  return undefined;
+}
+
 export function loadConfig(
   env: Record<string, string | undefined> = process.env,
 ): AppConfig {
@@ -56,7 +93,7 @@ export function loadConfig(
     adminPort: env.ADMIN_PORT,
     adminApiKey: env.ADMIN_API_KEY,
     logLevel: env.LOG_LEVEL,
-    databaseUrl: env.DATABASE_URL,
+    databaseUrl: resolveDatabaseUrl(env),
     authMode: env.AUTH_MODE,
     telegramBotToken: env.TELEGRAM_BOT_TOKEN,
     appSecret: env.APP_SECRET,

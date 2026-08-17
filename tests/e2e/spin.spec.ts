@@ -8,7 +8,7 @@ import pg from "pg";
 import type { FastifyInstance } from "fastify";
 
 import { buildApp } from "../../apps/api/src/app.js";
-import { loadConfig } from "../../apps/api/src/config.js";
+import { loadConfig, resolveDatabaseUrl } from "../../apps/api/src/config.js";
 import { runMigrations } from "../../apps/api/src/db/migrate.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -19,7 +19,7 @@ const rootDir = path.resolve(__dirname, "../..");
 loadDotenv({ path: path.resolve(rootDir, ".env") });
 
 const databaseUrl =
-  process.env.DATABASE_URL ??
+  resolveDatabaseUrl(process.env) ??
   "postgresql://slot:slot@localhost:5432/slot_machine";
 
 const E2E_PORT = 4173;

@@ -81,9 +81,17 @@ To keep the MVP resilient, focused, and simple to operate, the core design decis
 
 ### Prerequisites
 
-- **Node.js**: `>= 22.0.0`
+- **Node.js**: `>= 22.0.0` (LTS)
 - **npm**: `>= 10.0.0`
 - **PostgreSQL**: `>= 14.0`
+
+> **Instalación de Node.js 22 en Ubuntu / Debian**:
+> ```bash
+> apt-get update && apt-get install -y curl ca-certificates gnupg
+> curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+> apt-get install -y nodejs
+> node -v # Debe mostrar v22.x.x
+> ```
 
 ### 1. Clone & Install Dependencies
 
@@ -108,7 +116,14 @@ NODE_ENV=development
 PORT=3000
 ADMIN_PORT=3001
 LOG_LEVEL=info
-DATABASE_URL=postgresql://slot:slot@localhost:5432/slot_machine
+
+# Conexión a PostgreSQL
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=slot
+DB_PASSWORD=slot
+DB_NAME=slot_machine
+
 APP_SECRET=dev-secret-change-me-7f8a1b2c3d4e5f6a7b8c9d0e
 ADMIN_API_KEY=admin-dev-secret-key-12345678
 AUTH_MODE=development
@@ -119,25 +134,75 @@ GAME_VERSION=classic-1
 
 ### 3. Run Database Migrations
 
-Ensure PostgreSQL is running and the database exists, then run:
+Ensure PostgreSQL is running and the database exists, then build contracts and run migrations from the repository root:
 
 ```bash
+# 1. Compilar contratos y API
 npm run build --workspace @slot-machine/contracts
 npm run build --workspace @slot-machine/api
+
+# 2. Ejecutar migraciones SQL
 npm run migrate --workspace @slot-machine/api
 ```
 
-### 4. Build and Run
+### 4. Build and Run API
+
+Desde la **raíz del proyecto** (`slot-machine-mvp`):
 
 ```bash
-# Build contracts and all workspaces
+# Compilar todos los workspaces (contracts, api, web)
 npm run build
 
-# Start the Fastify API server
+# Iniciar el servidor API Fastify
 node apps/api/dist/server.js
 ```
 
+*(El servidor cargará automáticamente las variables desde el `.env` en la raíz del proyecto).*
+
 In development mode (`AUTH_MODE=development`), opening the web app connects automatically with a mock developer player identity with 1,000 virtual credits.
+
+### 5. Running as a Persistent Background Service (Siempre Activo)
+
+Para mantener la API corriendo permanentemente en tu servidor o máquina virtual sin depender de una sesión de terminal abierta, dispones de tres opciones:
+
+#### Opción A: Servicio Nativo de Linux (`systemd`) — Recomendado en Proxmox / VM
+Crea el archivo de servicio en `/etc/systemd/system/slot-api.service`:
+
+```ini
+[Unit]
+Description=Slot Machine Fastify API
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=tragamonedas
+WorkingDirectory=/home/tragamonedas/slot-machine-mvp
+ExecStart=/usr/bin/node apps/api/dist/server.js
+Restart=always
+RestartSec=5
+EnvironmentFile=/home/tragamonedas/slot-machine-mvp/.env
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Habilita e inicia el servicio:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now slot-api
+sudo systemctl status slot-api
+```
+
+#### Opción B: Process Manager con PM2
+```bash
+npm install -g pm2
+pm2 start apps/api/dist/server.js --name slot-api --env .env
+pm2 save
+pm2 startup
+```
+
+#### Opción C: Docker Compose Stack
+Consulta la sección [Deployment and Operations (Docker & Proxmox)](#deployment-and-operations-docker--proxmox) para levantar todo el stack (API, Web Nginx, Postgres, Caddy TLS y Prometheus) en contenedores aislados.
 
 ---
 
