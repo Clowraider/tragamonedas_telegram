@@ -133,6 +133,13 @@ describe("admin contracts", () => {
       totalPlayers: 15,
       circulatingCredits: 15000,
       totalSpins: 120,
+      totalWagered: 1200,
+      totalPaidOut: 1134,
+      grossGamingRevenue: 66,
+      winningSpinsCount: 30,
+      globalWinRatePercent: 25.0,
+      jackpotSpinsCount: 2,
+      jackpotPaidOut: 500,
       observedRtpPercent: 94.5,
     };
     expect(AdminMetricsSchema.safeParse(validMetrics).success).toBe(true);
@@ -152,6 +159,19 @@ describe("admin contracts", () => {
       balance: 1000,
       createdAt: "2026-07-30T18:00:00.000Z",
       updatedAt: "2026-07-30T18:00:00.000Z",
+      stats: {
+        totalSpins: 50,
+        totalWagered: 500,
+        totalWon: 450,
+        netProfit: -50,
+        winRatePercent: 24.0,
+        biggestWinAmount: 200,
+        biggestWinMultiplier: 20.0,
+        maxWinningStreak: 3,
+        currentStreakCount: -2,
+        favoriteStake: 10,
+        lastSpinAt: "2026-07-30T18:30:00.000Z",
+      },
     };
     expect(AdminPlayerSchema.safeParse(validPlayer).success).toBe(true);
   });

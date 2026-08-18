@@ -105,13 +105,29 @@ describe("useSpin hook", () => {
 
     // In animating state
     expect(result.current.state).toBe("animating");
+    expect(result.current.reelSpinning).toEqual([true, true, true]);
 
-    // Advance past animation duration
+    // Advance to reel 0 stop (500ms for 1000ms duration)
     act(() => {
-      vi.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(500);
+    });
+    expect(result.current.reelSpinning).toEqual([false, true, true]);
+    expect(result.current.symbols[0]).toBe("bar");
+
+    // Advance to reel 1 stop (750ms for 1000ms duration)
+    act(() => {
+      vi.advanceTimersByTime(250);
+    });
+    expect(result.current.reelSpinning).toEqual([false, false, true]);
+    expect(result.current.symbols[1]).toBe("bar");
+
+    // Advance to reel 2 stop / full settlement (1000ms)
+    act(() => {
+      vi.advanceTimersByTime(250);
     });
 
     expect(result.current.state).toBe("settled");
+    expect(result.current.reelSpinning).toEqual([false, false, false]);
     expect(result.current.symbols).toEqual(["bar", "bar", "bar"]);
     expect(result.current.balance).toBe(690);
     expect(result.current.payout).toBe(200);
@@ -259,5 +275,48 @@ describe("useSpin hook", () => {
     expect((result.current.error as ApiClientError).code).toBe(
       "INSUFFICIENT_CREDITS",
     );
+  });
+
+  it("handles auto-spin sequence and stops automatically on win", async () => {
+    // 1st round loss, 2nd round win
+    spinMock
+      .mockResolvedValueOnce(mockSpinLoss)
+      .mockResolvedValueOnce(mockSpinWin);
+
+    const { result } = renderHook(() =>
+      useSpin({
+        apiClient: mockClient,
+        autoLoad: true,
+        initialReducedMotion: true,
+      }),
+    );
+
+    await waitFor(() => expect(result.current.state).toBe("ready"));
+
+    act(() => {
+      result.current.startAutoSpin(10);
+    });
+
+    expect(result.current.isAutoSpinning).toBe(true);
+
+    // Wait for first spin (loss)
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(spinMock).toHaveBeenCalledTimes(1);
+    expect(result.current.autoSpinRemaining).toBe(9);
+    expect(result.current.isAutoSpinning).toBe(true);
+
+    // Advance 700ms pause between spins
+    await act(async () => {
+      vi.advanceTimersByTime(700);
+      await Promise.resolve();
+    });
+
+    // 2nd spin is a win -> auto-spin should stop automatically!
+    expect(spinMock).toHaveBeenCalledTimes(2);
+    expect(result.current.payout).toBe(200);
+    expect(result.current.isAutoSpinning).toBe(false);
   });
 });

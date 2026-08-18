@@ -471,7 +471,22 @@
         <div class="metric-card">
           <div class="metric-title">Observed RTP</div>
           <div class="metric-value" id="kpiRtp">0.00%</div>
-          <div class="metric-sub">Payout / Turnover %</div>
+          <div class="metric-sub" id="kpiHouseEdge">House Margin: 0.00%</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Global Win Rate</div>
+          <div class="metric-value" id="kpiWinRate" style="color: var(--accent-success);">0.00%</div>
+          <div class="metric-sub" id="kpiWinCount">0 winning spins</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">House Net Margin (GGR)</div>
+          <div class="metric-value" id="kpiGgr" style="color: var(--accent-warning);">0</div>
+          <div class="metric-sub" id="kpiTurnover">Wagered: 0 | Paid: 0</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Jackpots Delivered (&ge;50x)</div>
+          <div class="metric-value" id="kpiJackpots" style="color: #fbbf24;">0</div>
+          <div class="metric-sub" id="kpiJackpotPayout">Paid: 0 Credits</div>
         </div>
       </div>
 
@@ -482,6 +497,9 @@
         <button class="tab-btn" onclick="switchTab('spinsTab')">
           Live Spin Feed (50)
         </button>
+        <button class="tab-btn" onclick="switchTab('symbolsTab')">
+          Symbol Distribution
+        </button>
         <button class="tab-btn" onclick="switchTab('auditTab')">
           Audit Logs
         </button>
@@ -491,7 +509,7 @@
       <div id="playersTab" class="tab-content active">
         <div class="panel">
           <div class="panel-header">
-            <div class="panel-title">Registered Players</div>
+            <div class="panel-title">Registered Players &amp; Performance Telemetry</div>
             <div style="display: flex; gap: 0.5rem; align-items: center">
               <input
                 type="text"
@@ -506,11 +524,13 @@
             <table>
               <thead>
                 <tr>
-                  <th>Player ID</th>
-                  <th>Username</th>
-                  <th>First Name</th>
-                  <th>Provider</th>
-                  <th>Balance (Credits)</th>
+                  <th>Player</th>
+                  <th>Balance</th>
+                  <th>Total Spins</th>
+                  <th>Net Profit (P/L)</th>
+                  <th>Biggest Win</th>
+                  <th>Streak</th>
+                  <th>Fav Bet</th>
                   <th>Registered</th>
                   <th>Actions</th>
                 </tr>
@@ -518,7 +538,7 @@
               <tbody id="playersTableBody">
                 <tr>
                   <td
-                    colspan="7"
+                    colspan="9"
                     style="text-align: center; color: var(--text-muted)"
                   >
                     Loading players...
@@ -572,6 +592,37 @@
                     style="text-align: center; color: var(--text-muted)"
                   >
                     Loading live spins...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SYMBOLS TAB -->
+      <div id="symbolsTab" class="tab-content">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Symbol RNG Frequency &amp; Dispersion</div>
+            <button class="btn-secondary" onclick="fetchMetrics()">
+              Refresh
+            </button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Occurrences</th>
+                  <th>Observed Frequency (%)</th>
+                  <th>Theoretical Target</th>
+                </tr>
+              </thead>
+              <tbody id="symbolsTableBody">
+                <tr>
+                  <td colspan="4" style="text-align: center; color: var(--text-muted)">
+                    Loading symbol distribution...
                   </td>
                 </tr>
               </tbody>
@@ -832,6 +883,42 @@
             data.totalSpins.toLocaleString();
           document.getElementById("kpiRtp").textContent =
             `${data.observedRtpPercent.toFixed(2)}%`;
+
+          const houseMargin = (100 - data.observedRtpPercent).toFixed(2);
+          document.getElementById("kpiHouseEdge").textContent =
+            `House Margin: ${houseMargin}%`;
+
+          document.getElementById("kpiWinRate").textContent =
+            `${(data.globalWinRatePercent || 0).toFixed(2)}%`;
+          document.getElementById("kpiWinCount").textContent =
+            `${(data.winningSpinsCount || 0).toLocaleString()} winning spins`;
+
+          document.getElementById("kpiGgr").textContent =
+            `${(data.grossGamingRevenue || 0) > 0 ? "+" : ""}${(data.grossGamingRevenue || 0).toLocaleString()} CR`;
+          document.getElementById("kpiTurnover").textContent =
+            `Wagered: ${(data.totalWagered || 0).toLocaleString()} | Paid: ${(data.totalPaidOut || 0).toLocaleString()}`;
+
+          document.getElementById("kpiJackpots").textContent =
+            (data.jackpotSpinsCount || 0).toLocaleString();
+          document.getElementById("kpiJackpotPayout").textContent =
+            `Paid: ${(data.jackpotPaidOut || 0).toLocaleString()} Credits`;
+
+          // Populate symbol frequencies
+          if (data.symbolFrequencies && data.symbolFrequencies.length > 0) {
+            const tbody = document.getElementById("symbolsTableBody");
+            tbody.innerHTML = "";
+            data.symbolFrequencies.forEach((sym) => {
+              const tr = document.createElement("tr");
+              const icon = symbolEmojis[sym.symbol] || sym.symbol;
+              tr.innerHTML = `
+                <td><span class="symbols-display" style="font-size:1.3rem;">${icon}</span> <strong>${sym.symbol.toUpperCase()}</strong></td>
+                <td><strong>${sym.count.toLocaleString()}</strong></td>
+                <td><span class="code-pill">${sym.percentage.toFixed(2)}%</span></td>
+                <td style="color:var(--text-secondary);">20.00% (1/5)</td>
+              `;
+              tbody.appendChild(tr);
+            });
+          }
         } catch (err) {
           console.error("Failed to fetch metrics:", err);
         }
@@ -850,20 +937,53 @@
           tbody.innerHTML = "";
           if (data.players.length === 0) {
             tbody.innerHTML =
-              '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No players found</td></tr>';
+              '<tr><td colspan="9" style="text-align: center; color: var(--text-muted);">No players found</td></tr>';
             return;
           }
           data.players.forEach((p) => {
             const tr = document.createElement("tr");
+            const st = p.stats || {};
+            const netProfit = st.netProfit ?? 0;
+            const isProfit = netProfit > 0;
+            const isLoss = netProfit < 0;
+
+            const streakCount = st.currentStreakCount ?? 0;
+            let streakBadge = '<span style="color:var(--text-muted);">&mdash;</span>';
+            if (streakCount > 0) {
+              streakBadge = `<span class="badge" style="background:rgba(16,185,129,0.2);color:var(--accent-success);">+${streakCount} Win</span>`;
+            } else if (streakCount < 0) {
+              streakBadge = `<span class="badge" style="background:rgba(239,68,68,0.2);color:var(--accent-danger);">${Math.abs(streakCount)} Loss</span>`;
+            }
+
             tr.innerHTML = `
-            <td><span class="code-pill">${p.id.slice(0, 8)}...</span></td>
-            <td>${p.username ? "@" + p.username : '<span style="color:var(--text-muted);">&mdash;</span>'}</td>
-            <td>${p.firstName || '<span style="color:var(--text-muted);">&mdash;</span>'}</td>
-            <td><span class="badge" style="background:rgba(99,102,241,0.2);color:var(--accent-primary);">${p.authProvider}</span></td>
-            <td><strong>${p.balance.toLocaleString()}</strong></td>
-            <td style="color:var(--text-secondary);font-size:0.75rem;">${new Date(p.createdAt).toLocaleDateString()}</td>
-            <td><button class="btn-secondary" style="padding:0.25rem 0.5rem;font-size:0.75rem;" onclick='openAdjustModal(${JSON.stringify(p)})'>Adjust</button></td>
-          `;
+              <td>
+                <div style="font-weight:600;">${p.username ? "@" + p.username : (p.firstName || "Player")}</div>
+                <div style="font-size:0.7rem;color:var(--text-muted);"><span class="code-pill">${p.id.slice(0, 8)}...</span> &bull; ${p.authProvider}</div>
+              </td>
+              <td><strong>${p.balance.toLocaleString()} CR</strong></td>
+              <td>
+                <div>${(st.totalSpins ?? 0).toLocaleString()} spins</div>
+                <div style="font-size:0.7rem;color:var(--text-muted);">Win: ${(st.winRatePercent ?? 0).toFixed(1)}%</div>
+              </td>
+              <td style="color:${isProfit ? "var(--accent-success)" : isLoss ? "var(--accent-danger)" : "inherit"};font-weight:700;">
+                ${isProfit ? "+" : ""}${netProfit.toLocaleString()} CR
+              </td>
+              <td>
+                <div>+${(st.biggestWinAmount ?? 0).toLocaleString()} CR</div>
+                <div style="font-size:0.7rem;color:var(--slot-gold,#fbbf24);">${st.biggestWinMultiplier ?? 0}x</div>
+              </td>
+              <td>
+                <div>${streakBadge}</div>
+                <div style="font-size:0.7rem;color:var(--text-muted);">Max: ${st.maxWinningStreak ?? 0}W</div>
+              </td>
+              <td>
+                <span class="code-pill">${st.favoriteStake ? st.favoriteStake + " CR" : "&mdash;"}</span>
+              </td>
+              <td style="color:var(--text-secondary);font-size:0.75rem;">${new Date(p.createdAt).toLocaleDateString()}</td>
+              <td>
+                <button class="btn-secondary" style="padding:0.25rem 0.5rem;font-size:0.75rem;" onclick='openAdjustModal(${JSON.stringify(p)})'>Adjust</button>
+              </td>
+            `;
             tbody.appendChild(tr);
           });
         } catch (err) {

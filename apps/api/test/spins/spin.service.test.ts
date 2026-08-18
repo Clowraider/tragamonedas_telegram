@@ -115,7 +115,7 @@ describe("spin service settlement", () => {
         createSpin({
           playerId: player.playerId,
           idempotencyKey: randomUUID(),
-          terms: { stake: 50, gameVersion: GAME_VERSION },
+          terms: { stake: 999, gameVersion: GAME_VERSION },
           configuredStake: 10,
           random: new FixedRandomSource([0, 0, 0]),
           pool,

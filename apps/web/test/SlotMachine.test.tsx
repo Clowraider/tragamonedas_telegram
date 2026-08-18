@@ -20,12 +20,18 @@ describe("SlotMachine component", () => {
     gameVersion: "classic-1",
     playerId: "p-test",
     symbols: ["seven", "seven", "seven"],
+    reelSpinning: [false, false, false],
     lastRound: null,
     payout: 0,
     error: null,
     pendingKey: null,
     isReducedMotion: false,
     canSpin: true,
+    isAutoSpinning: false,
+    autoSpinRemaining: 0,
+    setStake: vi.fn(),
+    startAutoSpin: vi.fn(),
+    stopAutoSpin: vi.fn(),
     spin: vi.fn().mockResolvedValue(undefined),
     retry: vi.fn().mockResolvedValue(undefined),
     refresh: vi.fn().mockResolvedValue(undefined),
@@ -82,6 +88,14 @@ describe("SlotMachine component", () => {
         "spin",
         "retry last spin (recover)",
         "refresh balance",
+        "🔊 sound on",
+        "🔇 muted",
+        "10",
+        "20",
+        "25",
+        "50",
+        "100",
+        "∞",
       ]).toContain(label.trim());
     }
   });
@@ -188,5 +202,58 @@ describe("SlotMachine component", () => {
 
     fireEvent.click(checkbox);
     expect(toggleReducedMotion).toHaveBeenCalledOnce();
+  });
+
+  it("handles auto-spin triggers and stop button", () => {
+    const startAutoSpin = vi.fn();
+    const stopAutoSpin = vi.fn();
+
+    const hook = createMockHook({
+      isAutoSpinning: false,
+      startAutoSpin,
+      stopAutoSpin,
+    });
+
+    const { rerender } = render(<SlotMachine spinHook={hook} />);
+
+    const auto10Btn = screen.getByTestId("autospin-10");
+    fireEvent.click(auto10Btn);
+    expect(startAutoSpin).toHaveBeenCalledWith(10);
+
+    const autoInfBtn = screen.getByTestId("autospin-inf");
+    fireEvent.click(autoInfBtn);
+    expect(startAutoSpin).toHaveBeenCalledWith("infinity");
+
+    // Rerender in active auto-spin state
+    rerender(
+      <SlotMachine
+        spinHook={createMockHook({
+          isAutoSpinning: true,
+          autoSpinRemaining: 9,
+          startAutoSpin,
+          stopAutoSpin,
+        })}
+      />,
+    );
+
+    const stopButton = screen.getByTestId("auto-stop-button");
+    expect(stopButton.textContent).toContain("STOP AUTO (9)");
+    fireEvent.click(stopButton);
+    expect(stopAutoSpin).toHaveBeenCalledOnce();
+  });
+
+  it("handles stake change via pill buttons", () => {
+    const setStake = vi.fn();
+    const hook = createMockHook({
+      balance: 500,
+      stake: 10,
+      setStake,
+    });
+
+    render(<SlotMachine spinHook={hook} />);
+
+    const pill50 = screen.getByTestId("stake-pill-50");
+    fireEvent.click(pill50);
+    expect(setStake).toHaveBeenCalledWith(50);
   });
 });

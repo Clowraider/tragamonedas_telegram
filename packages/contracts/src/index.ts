@@ -107,12 +107,46 @@ export type SpinRepresentation = z.infer<typeof SpinRepresentationSchema>;
 export type SpinRequest = z.infer<typeof SpinRequestSchema>;
 
 // Admin Contracts
+export const SymbolFrequencySchema = z
+  .object({
+    symbol: SlotSymbolSchema,
+    count: z.number().int().nonnegative(),
+    percentage: z.number().nonnegative(),
+  })
+  .strict();
+
 export const AdminMetricsSchema = z
   .object({
     totalPlayers: z.number().int().nonnegative(),
     circulatingCredits: z.number().int().nonnegative(),
     totalSpins: z.number().int().nonnegative(),
+    totalWagered: z.number().int().nonnegative(),
+    totalPaidOut: z.number().int().nonnegative(),
+    grossGamingRevenue: z.number().int(),
+    winningSpinsCount: z.number().int().nonnegative(),
+    globalWinRatePercent: z.number().nonnegative(),
+    jackpotSpinsCount: z.number().int().nonnegative(),
+    jackpotPaidOut: z.number().int().nonnegative(),
     observedRtpPercent: z.number().nonnegative(),
+    symbolFrequencies: z.array(SymbolFrequencySchema).optional(),
+  })
+  .strict();
+
+export type SymbolFrequency = z.infer<typeof SymbolFrequencySchema>;
+
+export const AdminPlayerStatsSchema = z
+  .object({
+    totalSpins: z.number().int().nonnegative(),
+    totalWagered: z.number().int().nonnegative(),
+    totalWon: z.number().int().nonnegative(),
+    netProfit: z.number().int(),
+    winRatePercent: z.number().nonnegative(),
+    biggestWinAmount: z.number().int().nonnegative(),
+    biggestWinMultiplier: z.number().nonnegative(),
+    maxWinningStreak: z.number().int().nonnegative(),
+    currentStreakCount: z.number().int(), // positive for win streak, negative for loss streak, 0 for none
+    favoriteStake: z.number().int().nullable(),
+    lastSpinAt: z.string().datetime().nullable(),
   })
   .strict();
 
@@ -126,8 +160,11 @@ export const AdminPlayerSchema = z
     balance: z.number().int().nonnegative(),
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
+    stats: AdminPlayerStatsSchema.optional(),
   })
   .strict();
+
+export type AdminPlayerStats = z.infer<typeof AdminPlayerStatsSchema>;
 
 export const AdminPlayerListQuerySchema = z
   .object({

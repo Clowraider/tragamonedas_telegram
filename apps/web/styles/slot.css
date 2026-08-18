@@ -55,6 +55,18 @@ body {
   flex-direction: column;
   gap: 1.25rem;
   min-height: 100vh;
+  position: relative;
+}
+
+/* Confetti Canvas Overlay */
+.confetti-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
 }
 
 /* Neon Top Header */
@@ -220,6 +232,58 @@ body {
   text-shadow: 0 0 10px var(--slot-gold-glow);
 }
 
+/* Stake Selector Bar */
+.stake-selector-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(17, 24, 39, 0.85);
+  border: 1px solid #374151;
+  padding: 0.35rem 0.5rem;
+  border-radius: 10px;
+}
+
+.stake-selector-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--slot-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-left: 0.2rem;
+}
+
+.stake-pill-btn {
+  flex: 1;
+  background: #111827;
+  border: 1px solid #374151;
+  color: var(--slot-text-muted);
+  border-radius: 6px;
+  padding: 0.35rem 0.2rem;
+  font-size: 0.8rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stake-pill-btn:hover:not(:disabled) {
+  background: #374151;
+  border-color: var(--slot-gold);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.stake-pill-btn.active {
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+  border-color: #93c5fd;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+}
+
+.stake-pill-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* Reels Stage / Glass Window */
 .slot-cabinet {
   background: #000;
@@ -356,6 +420,7 @@ body {
   justify-content: center;
   transform: scale(1);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: reelStopBounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .symbol-icon {
@@ -543,6 +608,75 @@ body {
     0 0 10px rgba(251, 191, 36, 0.8);
 }
 
+.spin-btn.auto-stop-btn {
+  background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
+  border-color: #fca5a5;
+  box-shadow:
+    0 8px 0 #7f1d1d,
+    0 12px 20px rgba(0, 0, 0, 0.8),
+    0 0 25px rgba(239, 68, 68, 0.6);
+}
+
+.spin-btn.auto-stop-btn:hover {
+  background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+  box-shadow:
+    0 10px 0 #7f1d1d,
+    0 15px 25px rgba(0, 0, 0, 0.9),
+    0 0 35px rgba(239, 68, 68, 0.8);
+}
+
+/* Auto-Spin Selector Bar */
+.autospin-selector-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(17, 24, 39, 0.8);
+  border: 1px solid #374151;
+  padding: 0.35rem 0.5rem;
+  border-radius: 10px;
+}
+
+.autospin-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--slot-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-left: 0.2rem;
+}
+
+.autospin-btn {
+  flex: 1;
+  background: #111827;
+  border: 1px solid #374151;
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.4rem 0.2rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.autospin-btn:hover:not(:disabled) {
+  background: #374151;
+  border-color: var(--slot-gold);
+  color: var(--slot-gold);
+  transform: translateY(-1px);
+}
+
+.autospin-btn.active {
+  background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
+  border-color: #fef08a;
+  color: #fff;
+  box-shadow: 0 0 10px var(--slot-gold-glow);
+}
+
+.autospin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .retry-btn,
 .refresh-btn {
   background: #1f2937;
@@ -687,6 +821,12 @@ body {
   padding: 0 0.5rem;
 }
 
+.footer-toggles {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
 .reduced-motion-toggle {
   display: flex;
   align-items: center;
@@ -694,6 +834,23 @@ body {
   font-size: 0.7rem;
   color: var(--slot-text-muted);
   cursor: pointer;
+}
+
+.sound-toggle-btn {
+  background: rgba(31, 41, 55, 0.7);
+  border: 1px solid #374151;
+  color: var(--slot-text-muted);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sound-toggle-btn:hover {
+  background: #374151;
+  color: #fff;
 }
 
 .game-version {
@@ -780,13 +937,28 @@ body {
   }
 }
 
+@keyframes reelStopBounce {
+  0% {
+    transform: translateY(-16px) scale(1.08);
+    opacity: 0.8;
+  }
+  60% {
+    transform: translateY(4px) scale(0.98);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
 /* Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
   .blur-strip,
   .neon-star,
   .light-dot,
   .spin-btn-shine,
-  .chassis-winner {
+  .chassis-winner,
+  .reel-symbol-display {
     animation: none !important;
   }
 }

@@ -99,6 +99,9 @@ describe("Admin Fastify API Server & Dashboard Endpoints", () => {
       const searchData = searchRes.json();
       expect(searchData.total).toBe(1);
       expect(searchData.players[0].username).toBe("high_roller");
+      expect(searchData.players[0].stats).toBeDefined();
+      expect(searchData.players[0].stats.totalSpins).toBe(1);
+      expect(searchData.players[0].stats.biggestWinAmount).toBe(30);
 
       // 4. Adjust Balance (grant +500)
       const grantRes = await app.inject({

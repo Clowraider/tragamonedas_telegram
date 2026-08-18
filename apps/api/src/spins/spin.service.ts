@@ -6,7 +6,7 @@ import {
 } from "@slot-machine/contracts";
 import pg from "pg";
 
-import { GAME_VERSION } from "../game/config.js";
+import { GAME_VERSION, isAllowedStake } from "../game/config.js";
 import { evaluatePayout, generateOutcome } from "../game/engine.js";
 import type { RandomSource } from "../game/random.js";
 
@@ -87,10 +87,10 @@ function rowToRepresentation(row: RoundRow): SpinRepresentation {
 }
 
 function assertValidTerms(terms: SpinTerms, configuredStake: number): void {
-  if (terms.stake !== configuredStake) {
+  if (!isAllowedStake(terms.stake, configuredStake)) {
     throw new SpinError(
       GAME_VERSION_MISMATCH,
-      `The request stake does not match the configured game terms.`,
+      `The request stake (${terms.stake}) does not match the allowed stakes.`,
     );
   }
   if (terms.gameVersion !== GAME_VERSION) {

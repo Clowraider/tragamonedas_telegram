@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import type { SlotSymbol, SpinRepresentation } from "@slot-machine/contracts";
 
 import { useSpin, type UseSpinResult } from "./useSpin.js";
 import { ApiClient } from "../api.js";
+import { soundManager, playSound } from "../sound.js";
+import { confettiEngine } from "../confetti.js";
 
 export const SYMBOL_CONFIG: Record<
   SlotSymbol,
@@ -46,6 +48,7 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
     state,
     balance,
     stake,
+    setStake,
     gameVersion,
     symbols,
     lastRound,
@@ -58,9 +61,58 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
     retry,
     refresh,
     toggleReducedMotion,
+    reelSpinning,
+    isAutoSpinning,
+    autoSpinRemaining,
+    startAutoSpin,
+    stopAutoSpin,
   } = hook;
 
   const [history, setHistory] = useState<SpinRepresentation[]>([]);
+  const [isMuted, setIsMuted] = useState<boolean>(() => soundManager.getMuted());
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // Initialize confetti canvas
+  useEffect(() => {
+    if (canvasRef.current) {
+      confettiEngine.init(canvasRef.current);
+    }
+    return () => {
+      confettiEngine.destroy();
+    };
+  }, []);
+
+  // Trigger confetti when a win settles
+  useEffect(() => {
+    if (state === "settled" && payout > 0 && !isReducedMotion) {
+      if (payout >= stake * 50) {
+        confettiEngine.fire("grand");
+      } else {
+        confettiEngine.fire("soft");
+      }
+    }
+  }, [state, payout, stake, isReducedMotion]);
+
+  const handleToggleMute = () => {
+    const nextMuted = soundManager.toggleMute();
+    setIsMuted(nextMuted);
+    if (!nextMuted) {
+      playSound("clik");
+    }
+  };
+
+  const handleAutoSpinOption = (count: number | "infinity") => {
+    playSound("multi_spin");
+    startAutoSpin(count);
+  };
+
+  const handleStakeChange = (newStake: number) => {
+    if (isSpinning || isAutoSpinning) return;
+    playSound("clik");
+    if (setStake) {
+      setStake(newStake);
+    }
+  };
 
   // Keep local history updated when lastRound changes
   useEffect(() => {
@@ -79,6 +131,14 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
 
   return (
     <main className="slot-container" role="main" aria-label="Slot Machine Game">
+      {/* Confetti Overlay Canvas */}
+      <canvas
+        ref={canvasRef}
+        className="confetti-canvas"
+        data-testid="confetti-canvas"
+        aria-hidden="true"
+      />
+
       {/* Top Machine Frame */}
       <header className="slot-header">
         <div className="neon-top-sign">
@@ -123,7 +183,7 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
           </div>
         </div>
 
-        {/* Digital Meters */}
+        {/* Digital Meters & Stake Selector */}
         <section className="stats-panel" aria-label="Wallet and Game Info">
           <div className="stat-item">
             <span className="stat-label">Virtual Balance</span>
@@ -145,6 +205,25 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
             </span>
           </div>
         </section>
+
+        {/* Stake Selector Pills */}
+        <div className="stake-selector-bar" role="group" aria-label="Stake per spin options">
+          <span className="stake-selector-label">Bet:</span>
+          {[10, 20, 50, 100].map((val) => (
+            <button
+              key={val}
+              type="button"
+              className={`stake-pill-btn ${stake === val ? "active" : ""}`}
+              data-testid={`stake-pill-${val}`}
+              onClick={() => handleStakeChange(val)}
+              disabled={isSpinning || isAutoSpinning || balance < val}
+              aria-label={`Set bet to ${val} credits`}
+              aria-pressed={stake === val}
+            >
+              {val}
+            </button>
+          ))}
+        </div>
 
         {/* Main Reels Window */}
         <section className="slot-cabinet" aria-label="Slot Cabinet">
@@ -172,17 +251,21 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
                   icon: "❓",
                   color: "#fff",
                 };
+                const isThisReelSpinning =
+                  !isReducedMotion &&
+                  (reelSpinning ? reelSpinning[idx] : isSpinning);
+
                 return (
                   <div
                     key={idx}
-                    className={`slot-reel ${isSpinning && !isReducedMotion ? `animating reel-delay-${idx}` : ""} ${isWin ? "reel-win-glow" : ""}`}
+                    className={`slot-reel ${isThisReelSpinning ? `animating reel-delay-${idx}` : ""} ${isWin ? "reel-win-glow" : ""}`}
                     data-testid={`reel-${idx}`}
                     role="group"
                     aria-label={`Reel ${idx + 1}: ${symConfig.label}`}
                   >
                     <div className="reel-glass-reflection"></div>
                     <div className="reel-strip-cylinder">
-                      {isSpinning && !isReducedMotion ? (
+                      {isThisReelSpinning ? (
                         <div className="blur-strip">
                           {STRIP_SYMBOLS.map((s, sIdx) => (
                             <div key={sIdx} className="blur-symbol">
@@ -251,30 +334,94 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
 
           {/* Machine Controls & Lever */}
           <div className="controls-panel">
-            <button
-              type="button"
-              className={`spin-btn ${isSpinning ? "btn-spinning" : ""}`}
-              data-testid="spin-button"
-              onClick={() => void spin()}
-              disabled={!canSpin}
-              aria-busy={isSpinning}
-              aria-label={
-                isSpinning
-                  ? "Spinning reels..."
-                  : state === "booting"
-                    ? "Loading wallet..."
-                    : `Spin reels for ${stake} credits`
-              }
-            >
-              <span className="spin-btn-shine"></span>
-              <span className="spin-btn-text">
-                {isSpinning
-                  ? "SPINNING..."
-                  : state === "booting"
-                    ? "LOADING..."
-                    : "SPIN"}
-              </span>
-            </button>
+            {isAutoSpinning ? (
+              <button
+                type="button"
+                className="spin-btn auto-stop-btn"
+                data-testid="auto-stop-button"
+                onClick={stopAutoSpin}
+                aria-label="Stop Auto Spin"
+              >
+                <span className="spin-btn-shine"></span>
+                <span className="spin-btn-text">
+                  STOP AUTO (
+                  {autoSpinRemaining === "infinity"
+                    ? "∞"
+                    : autoSpinRemaining}
+                  )
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className={`spin-btn ${isSpinning ? "btn-spinning" : ""}`}
+                data-testid="spin-button"
+                onClick={() => void spin()}
+                disabled={!canSpin}
+                aria-busy={isSpinning}
+                aria-label={
+                  isSpinning
+                    ? "Spinning reels..."
+                    : state === "booting"
+                      ? "Loading wallet..."
+                      : `Spin reels for ${stake} credits`
+                }
+              >
+                <span className="spin-btn-shine"></span>
+                <span className="spin-btn-text">
+                  {isSpinning
+                    ? "SPINNING..."
+                    : state === "booting"
+                      ? "LOADING..."
+                      : "SPIN"}
+                </span>
+              </button>
+            )}
+
+            {/* Auto-Spin Selector Bar */}
+            <div className="autospin-selector-bar" role="group" aria-label="Auto Spin options">
+              <span className="autospin-label">Auto:</span>
+              <button
+                type="button"
+                className={`autospin-btn ${isAutoSpinning && autoSpinRemaining === 10 ? "active" : ""}`}
+                data-testid="autospin-10"
+                onClick={() => handleAutoSpinOption(10)}
+                disabled={!canSpin && !isAutoSpinning}
+                aria-label="Auto spin 10 rounds (stops on win)"
+              >
+                10
+              </button>
+              <button
+                type="button"
+                className={`autospin-btn ${isAutoSpinning && autoSpinRemaining === 25 ? "active" : ""}`}
+                data-testid="autospin-25"
+                onClick={() => handleAutoSpinOption(25)}
+                disabled={!canSpin && !isAutoSpinning}
+                aria-label="Auto spin 25 rounds (stops on win)"
+              >
+                25
+              </button>
+              <button
+                type="button"
+                className={`autospin-btn ${isAutoSpinning && autoSpinRemaining === 50 ? "active" : ""}`}
+                data-testid="autospin-50"
+                onClick={() => handleAutoSpinOption(50)}
+                disabled={!canSpin && !isAutoSpinning}
+                aria-label="Auto spin 50 rounds (stops on win)"
+              >
+                50
+              </button>
+              <button
+                type="button"
+                className={`autospin-btn ${isAutoSpinning && autoSpinRemaining === "infinity" ? "active" : ""}`}
+                data-testid="autospin-inf"
+                onClick={() => handleAutoSpinOption("infinity")}
+                disabled={!canSpin && !isAutoSpinning}
+                aria-label="Auto spin infinitely (stops on win)"
+              >
+                ∞
+              </button>
+            </div>
 
             {state === "error" && pendingKey && (
               <button
@@ -307,23 +454,23 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
         <div className="paytable-grid">
           <div className="paytable-item">
             <span className="paytable-icons">7️⃣ 7️⃣ 7️⃣</span>
-            <span className="paytable-val gold">100x (1,000 CR)</span>
+            <span className="paytable-val gold">50x ({(stake * 50).toLocaleString()} CR)</span>
           </div>
           <div className="paytable-item">
             <span className="paytable-icons">🎰 🎰 🎰</span>
-            <span className="paytable-val blue">50x (500 CR)</span>
+            <span className="paytable-val blue">20x ({(stake * 20).toLocaleString()} CR)</span>
           </div>
           <div className="paytable-item">
             <span className="paytable-icons">🔔 🔔 🔔</span>
-            <span className="paytable-val amber">20x (200 CR)</span>
+            <span className="paytable-val amber">10x ({(stake * 10).toLocaleString()} CR)</span>
           </div>
           <div className="paytable-item">
             <span className="paytable-icons">🍋 🍋 🍋</span>
-            <span className="paytable-val yellow">10x (100 CR)</span>
+            <span className="paytable-val yellow">5x ({(stake * 5).toLocaleString()} CR)</span>
           </div>
           <div className="paytable-item">
             <span className="paytable-icons">🍒 🍒 🍒</span>
-            <span className="paytable-val red">5x (50 CR)</span>
+            <span className="paytable-val red">3x ({(stake * 3).toLocaleString()} CR)</span>
           </div>
         </div>
       </section>
@@ -366,16 +513,28 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
 
       {/* Settings Footer */}
       <footer className="slot-footer">
-        <label className="reduced-motion-toggle">
-          <input
-            type="checkbox"
-            checked={isReducedMotion}
-            onChange={toggleReducedMotion}
-            data-testid="reduced-motion-toggle"
-            aria-label="Toggle Reduced Motion"
-          />
-          <span>Reduced Motion (Instant Spin)</span>
-        </label>
+        <div className="footer-toggles">
+          <label className="reduced-motion-toggle">
+            <input
+              type="checkbox"
+              checked={isReducedMotion}
+              onChange={toggleReducedMotion}
+              data-testid="reduced-motion-toggle"
+              aria-label="Toggle Reduced Motion"
+            />
+            <span>Reduced Motion</span>
+          </label>
+
+          <button
+            type="button"
+            className="sound-toggle-btn"
+            data-testid="sound-toggle-btn"
+            onClick={handleToggleMute}
+            aria-label={isMuted ? "Unmute Sound" : "Mute Sound"}
+          >
+            {isMuted ? "🔇 Muted" : "🔊 Sound ON"}
+          </button>
+        </div>
         <div className="game-version">Engine: {gameVersion}</div>
       </footer>
     </main>

@@ -13,6 +13,11 @@ describe("Admin Metrics Aggregation", () => {
       expect(metrics.totalPlayers).toBe(0);
       expect(metrics.circulatingCredits).toBe(0);
       expect(metrics.totalSpins).toBe(0);
+      expect(metrics.totalWagered).toBe(0);
+      expect(metrics.totalPaidOut).toBe(0);
+      expect(metrics.grossGamingRevenue).toBe(0);
+      expect(metrics.winningSpinsCount).toBe(0);
+      expect(metrics.globalWinRatePercent).toBe(0);
       expect(metrics.observedRtpPercent).toBe(0);
     });
   });
@@ -64,6 +69,11 @@ describe("Admin Metrics Aggregation", () => {
 
       expect(metrics.totalPlayers).toBe(1);
       expect(metrics.totalSpins).toBe(2);
+      expect(metrics.totalWagered).toBe(20);
+      expect(metrics.totalPaidOut).toBe(30);
+      expect(metrics.grossGamingRevenue).toBe(-10); // 20 - 30
+      expect(metrics.winningSpinsCount).toBe(1);
+      expect(metrics.globalWinRatePercent).toBe(50); // 1 out of 2 = 50%
       // Total stake = 20, Total payout = 30 -> RTP = 30 / 20 * 100 = 150%
       expect(metrics.observedRtpPercent).toBe(150);
     });

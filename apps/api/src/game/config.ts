@@ -32,7 +32,18 @@ export const PAYOUT_MULTIPLIERS: Readonly<Record<SlotSymbol, number>> = {
 };
 
 export const GAME_VERSIONS: readonly string[] = [GAME_VERSION];
+export const ALLOWED_STAKES: readonly number[] = [10, 20, 50, 100];
 
 export function isSupportedGameVersion(version: string): boolean {
   return GAME_VERSIONS.includes(version);
+}
+
+export function isAllowedStake(stake: number, configuredStake?: number): boolean {
+  if (ALLOWED_STAKES.includes(stake)) {
+    return true;
+  }
+  if (configuredStake !== undefined && stake === configuredStake) {
+    return true;
+  }
+  return false;
 }

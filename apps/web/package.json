@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.json && mkdir -p styles && cp src/styles/slot.css styles/slot.css && node -e \"require('esbuild').buildSync({ entryPoints: ['src/main.tsx'], bundle: true, outfile: 'dist/main.js', format: 'esm', sourcemap: true, define: { 'process.env.NODE_ENV': '\\\"production\\\"' } })\"",
+    "build": "tsc -p tsconfig.json && mkdir -p styles && cp src/styles/slot.css styles/slot.css && mkdir -p sound && cp -r ../../sound/* sound/ 2>/dev/null || true && node -e \"require('esbuild').buildSync({ entryPoints: ['src/main.tsx'], bundle: true, outfile: 'dist/main.js', format: 'esm', sourcemap: true, define: { 'process.env.NODE_ENV': '\\\"production\\\"' } })\"",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
