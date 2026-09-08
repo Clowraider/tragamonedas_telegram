@@ -4,6 +4,22 @@
 
 ---
 
+## 📸 Vista Previa / Screenshots
+
+### Telegram Mini App (Cliente de Juego)
+
+| Cabina Principal (Classic Slots) | Tirada Ganadora (Win Line & Multiplier) |
+| :---: | :---: |
+| <img src="img/tragamonedas.png" alt="Telegram Mini App - Classic Slots" width="380" /> | <img src="img/tragamonedas4.png" alt="Telegram Mini App - Win State" width="380" /> |
+
+### Panel de Control & Auditoría (Back-Office :3001)
+
+| Métricas Globales & KPIs en Tiempo Real | Auditoría de Dispersión RNG por Símbolo |
+| :---: | :---: |
+| <img src="img/tragamonedas2.png" alt="Slot Machine Ops Console - KPIs" width="480" /> | <img src="img/tragamonedas3.png" alt="Slot Machine Ops Console - Symbol RNG Frequency" width="480" /> |
+
+---
+
 ## 🎮 Virtual Credits & Real-Money Ready
 
 - **Modo actual**: Funciona con créditos virtuales (sin dinero real).

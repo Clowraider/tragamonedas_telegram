@@ -21,3 +21,6 @@ notas
 *.jpg
 *.png
 *.webp
+
+# Documentation assets
+!img/*.png
